@@ -6,7 +6,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom"; // Import routing components
-
+import { ToastContainer } from "./utils/toastUtils";
+import ProtectedRoute from "./components/ProtectedRoute";
 // Styles
 import "./App.css"; // Your global styles if any
 
@@ -35,6 +36,7 @@ function App() {
   return (
     // Wrap the entire application in the Router
     <Router>
+      <ToastContainer />
       {/* Routes define the possible paths and corresponding components */}
       <Routes>
         {/* --- Define Routes for Each Page --- */}
@@ -46,9 +48,23 @@ function App() {
 
         {/* Dashboards */}
         {/* Using '/dashboard' for the DRM view as per earlier convention */}
-        <Route path="/dashboard" element={<DrmDashboardPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DrmDashboardPage />
+            </ProtectedRoute>
+          }
+        />
         {/* Using '/hod-dashboard' for the HOD view as per earlier convention */}
-        <Route path="/hod-dashboard" element={<HodDashboardPage />} />
+        <Route
+          path="/hod-dashboard"
+          element={
+            <ProtectedRoute>
+              <HodDashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Domain Management */}
         <Route path="/domains/add" element={<AddDomainPage />} />

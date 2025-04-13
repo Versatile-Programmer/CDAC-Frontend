@@ -30,5 +30,5 @@ export const userState = atom({
 // A simple boolean reflecting if authToken exists
 export const isAuthenticatedState = atom({
     key: 'isAuthenticatedState',
-    default: !!getInitialToken(),
+    default: false,
 })
