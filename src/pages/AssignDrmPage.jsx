@@ -10,6 +10,13 @@ function AssignDrmPage() {
   const handleAssignSubmit = (e) => {
     e.preventDefault();
     alert("Assign DRM/ARM form submission logic will be added later!");
+
+
+    const data = e.target;
+    const details = new FormData(data);
+    const projectName = details.get("projectName");
+    const projectRemarks = details.get("projectRemarks");
+    console.log("Email and Password: ", email, password);
     // Construct FormData here later
   };
 

@@ -5,6 +5,7 @@ import { MdOutlineLock } from "react-icons/md";
 
 function DrmAssignmentSection() {
   // HOD's Centre/Group - Fetched later
+  
   const hodCentre = "HOD's Centre Name";
   const hodGroup = "HOD's Group Name";
 

@@ -20,6 +20,7 @@ import HodDashboardPage from "./pages/HodDashboardPage";
 import Login from "./pages/Login"; // Assuming Login is the LoginPage component
 import ViewDomainsPage from "./pages/ViewDomainsPage";
 import DomainDetailPage from "./pages/DomainDetailPage";
+import DashboardPage from "./pages/Dashboard";
 
 // A simple component for 404 - can be customized later
 const NotFoundPage = () => (
@@ -52,19 +53,19 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DrmDashboardPage />
+              <DashboardPage />
             </ProtectedRoute>
           }
         />
         {/* Using '/hod-dashboard' for the HOD view as per earlier convention */}
-        <Route
+        {/* <Route
           path="/hod-dashboard" 
           element={
             <ProtectedRoute>
               <HodDashboardPage />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         {/* Domain Management */}
         <Route path="/domains/add" element={<AddDomainPage />} />
@@ -82,7 +83,13 @@ function App() {
         />
 
         {/* HOD Actions */}
-        <Route path="/projects/assign" element={<AssignDrmPage />} />
+
+        <Route path="/projects/assign" element={
+          <ProtectedRoute>
+            <AssignDrmPage />
+        </ProtectedRoute>
+          
+          } />
 
         {/* --- Omitted routes for pages not listed in your imports --- */}
         {/* e.g., Renew, Transfer/Delete List, Reports, Assigned Projects, Verify Requests */}

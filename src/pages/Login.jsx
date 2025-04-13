@@ -1,130 +1,110 @@
 // src/pages/LoginPage.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AuthLayout from "../layouts/AuthLayout";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { loginUser } from "../services/authService";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authTokenState, userState, isAuthenticatedState } from "../recoil/atoms/authState";
 import { notifyError, notifySuccess } from "../utils/toastUtils";
 
-// Import icons from react-icons
-// Choose an icon set (e.g., 'md' for Material Design, 'fa' for FontAwesome, 'bs' for Bootstrap)
-import { MdOutlineMailOutline, MdOutlineLock,MdAutorenew } from "react-icons/md"; // Example using Material Design icons
+// Import icons
+import { MdOutlineMailOutline, MdOutlineLock, MdAutorenew } from "react-icons/md";
 
 function LoginPage() {
- const [formError, setFormError] = useState("");
- const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
 
- // --- Recoil ---
- const setAuthToken = useSetRecoilState(authTokenState);
- const setUser = useSetRecoilState(userState);
- const setIsAuthenticated = useSetRecoilState(isAuthenticatedState);
- const isAuthenticated = useRecoilValue(isAuthenticatedState);
+  // --- Recoil ---
+  const setAuthToken = useSetRecoilState(authTokenState);
+  const setUser = useSetRecoilState(userState);
+  const setIsAuthenticated = useSetRecoilState(isAuthenticatedState);
+  const isAuthenticated = useRecoilValue(isAuthenticatedState);
 
- // --- Navigation ---
- const navigate = useNavigate();
- const location = useLocation();
+  // --- Navigation ---
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname;
 
- const from = location.state?.from?.pathname;
+  // --- When login is successful, trigger spinner and delay navigation ---
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Show spinner if user is authenticated (coming from a fresh login or persisted auth)
+      setShowSpinner(true);
+      const timeout = setTimeout(() => {
+        // After delay, navigate to dashboard
+        navigate('/dashboard', { replace: true });
+      }, 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isAuthenticated, navigate]);
 
- // --- Effect ---
- useEffect(() => {
-   if (isAuthenticated) {
-    const targetRoute = getTargetRoute();
-     navigate(targetRoute, { replace: true });
-   }
- }, [isAuthenticated, navigate, from]);
+  // --- Handlers ---
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isLoading) return;
 
-   const getTargetRoute = () => {
-     const user = useRecoilValue(userState);
-     if (user?.role === "DRM") return "/dashboard";
-     else if (user?.role === "HOD") return "/hod-dashboard";
-     return "/";
-   };
- // --- Handlers ---
- const handleInputChange = (setter) => (event) => {
-   setter(event.target.value);
-   if (formError) setFormError("");
- };
+    setFormError("");
+    setIsLoading(true);
 
- const handleSubmit = async (e) => {
-   e.preventDefault();
-   if (isLoading) return;
+    const data = e.target;
+    const details = new FormData(data);
+    const email = details.get("email");
+    const password = details.get("password");
+    console.log("Email and Password: ", email, password);
 
-   setFormError("");
-   setIsLoading(true);
+    try {
+      // Call login service
+      const { token, user, message } = await loginUser(email, password);
 
-   const data = e.target;
-   const details = new FormData(data);
-   const email = details.get("email");
-   const password = details.get("password");
-   console.log("HBKJBHKJ",email, password);
-   try {
-     // --- Call the login service function ---
-     console.log(email, password);
-     const { token, user, message } = await loginUser(email, password);
+      // 1. Persist data
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-     // --- Handle Success (Logic remains in component) ---
-     // 1. Persist
-     console.log()
-     localStorage.setItem("authToken", token);
-     localStorage.setItem("user", JSON.stringify(user));
+      // 2. Update Recoil state
+      setAuthToken(token);
+      setUser(user);
+      setIsAuthenticated(true);
 
-     // 2. Update Recoil
-     setAuthToken(token);
-     setUser(user);
-     setIsAuthenticated(true);  
+      // 3. Notify success
+      notifySuccess(message || "Login successful!");
 
-     // 3. Notify
-     notifySuccess(message || "Login successful!");
+      // Start showing spinner (navigation will be handled by useEffect)
+      setShowSpinner(true);
+    } catch (error) {
+      console.error("Login failed:", error);
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : "An unknown login error occurred.";
 
-     // 4. Navigate
-   setTimeout(() => {
-      if (user.role === "DRM") {
-        navigate("/dashboard", { replace: true });
-      } else if (user.role === "HOD") {
-        navigate("/hod-dashboard", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
-    }, 1000); 
-   } catch (error) {
-     // --- Handle Error (Error thrown from service) ---
-     console.error("Login failed in component:", error);
-     const errorMsg =
-       error instanceof Error
-         ? error.message
-         : "An unknown login error occurred.";
+      setFormError(errorMsg);
+      notifyError(errorMsg);
 
-     // Display errors
-     setFormError(errorMsg);
-     notifyError(errorMsg);
+      // Clear auth state on error
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      setAuthToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-     // Clear auth state (remains in component for consistency)
-     localStorage.removeItem("authToken");
-     localStorage.removeItem("user");
-     setAuthToken(null);
-     setUser(null);
-     setIsAuthenticated(false);
-   } finally {
-     setIsLoading(false);
-   }
- };
-
- // --- Render ---
-if (isAuthenticated) {
-  return (
-    <AuthLayout>
-      <div className="flex items-center justify-center h-[80vh]">
-        <MdAutorenew className="animate-spin text-4xl text-blue-600 mr-2" />
-        <span className="text-lg text-gray-700">
-          Redirecting to your dashboard...
-        </span>
-      </div>
-    </AuthLayout>
-  );
-}
+  // --- Render ---
+  if (isAuthenticated && showSpinner) {
+    return (
+      <AuthLayout>
+        <div className="flex items-center justify-center h-[80vh]">
+          <MdAutorenew className="animate-spin text-4xl text-blue-600 mr-2" />
+          <span className="text-lg text-gray-700">
+            Redirecting to your dashboard...
+          </span>
+        </div>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout>
@@ -133,12 +113,10 @@ if (isAuthenticated) {
           <h1 className="text-2xl md:text-3xl font-semibold text-gray-700 mb-8">
             Sign in with your email
           </h1>
-
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Input with Email Icon */}
+            {/* Email Input */}
             <div className="relative">
               <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                {/* Use the imported icon component */}
                 <MdOutlineMailOutline className="w-5 h-5" />
               </span>
               <input
@@ -151,10 +129,9 @@ if (isAuthenticated) {
               />
             </div>
 
-            {/* Input with Lock Icon */}
+            {/* Password Input */}
             <div className="relative">
               <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                {/* Use the imported icon component */}
                 <MdOutlineLock className="w-5 h-5" />
               </span>
               <input
@@ -174,6 +151,9 @@ if (isAuthenticated) {
               Sign In
             </button>
           </form>
+          {formError && (
+            <p className="mt-4 text-red-500 text-sm">{formError}</p>
+          )}
         </div>
       </div>
     </AuthLayout>

@@ -19,7 +19,8 @@ export const loginUser = async (email, password) => {
 
     // Construct the full URL
     // const loginUrl = `${API_BASE_URL}/api/auth/login`; 
-    const loginUrl = `http://localhost:5000/api/auth/login`;
+    // http://100.88.57.62:5000
+    const loginUrl = `${API_BASE_URL}/api/auth/login`;
 
     try {
         console.log(`Attempting login to: ${loginUrl} with email: ${email}`); // Debug log
