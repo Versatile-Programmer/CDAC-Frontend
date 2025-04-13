@@ -27,8 +27,8 @@ export const userState = atom({
 });
 
 // Derived state? Or simple boolean atom is fine too.
-// A simple boolean reflecting if authToken exists
+// A simple boolean reflecting if authToken exists  
 export const isAuthenticatedState = atom({
     key: 'isAuthenticatedState',
-    default: false,
-})
+    default: !!localStorage.getItem('authToken'),
+});

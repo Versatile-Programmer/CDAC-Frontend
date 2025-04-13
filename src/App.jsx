@@ -58,7 +58,7 @@ function App() {
         />
         {/* Using '/hod-dashboard' for the HOD view as per earlier convention */}
         <Route
-          path="/hod-dashboard"
+          path="/hod-dashboard" 
           element={
             <ProtectedRoute>
               <HodDashboardPage />

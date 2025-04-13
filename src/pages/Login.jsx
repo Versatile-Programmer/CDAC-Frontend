@@ -13,8 +13,6 @@ import { notifyError, notifySuccess } from "../utils/toastUtils";
 import { MdOutlineMailOutline, MdOutlineLock,MdAutorenew } from "react-icons/md"; // Example using Material Design icons
 
 function LoginPage() {
- const [email, setEmail] = useState("");
- const [password, setPassword] = useState("");
  const [formError, setFormError] = useState("");
  const [isLoading, setIsLoading] = useState(false);
 
@@ -27,15 +25,23 @@ function LoginPage() {
  // --- Navigation ---
  const navigate = useNavigate();
  const location = useLocation();
- const from = location.state?.from?.pathname || "/dashboard";
+
+ const from = location.state?.from?.pathname;
 
  // --- Effect ---
  useEffect(() => {
    if (isAuthenticated) {
-     navigate(from, { replace: true });
+    const targetRoute = getTargetRoute();
+     navigate(targetRoute, { replace: true });
    }
  }, [isAuthenticated, navigate, from]);
 
+   const getTargetRoute = () => {
+     const user = useRecoilValue(userState);
+     if (user?.role === "DRM") return "/dashboard";
+     else if (user?.role === "HOD") return "/hod-dashboard";
+     return "/";
+   };
  // --- Handlers ---
  const handleInputChange = (setter) => (event) => {
    setter(event.target.value);
@@ -74,14 +80,15 @@ function LoginPage() {
      notifySuccess(message || "Login successful!");
 
      // 4. Navigate
-    if (user.role === "DRM") {
-      navigate("/dashboard", { replace: true });
-    } else if (user.role === "HOD") {
-      navigate("/hod-dashboard", { replace: true });
-    } else {
-      // fallback
-      navigate("/", { replace: true });
-    }
+   setTimeout(() => {
+      if (user.role === "DRM") {
+        navigate("/dashboard", { replace: true });
+      } else if (user.role === "HOD") {
+        navigate("/hod-dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }, 1000); 
    } catch (error) {
      // --- Handle Error (Error thrown from service) ---
      console.error("Login failed in component:", error);
