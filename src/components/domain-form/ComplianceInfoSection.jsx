@@ -2,20 +2,32 @@
 import React from "react";
 import RadioGroup from "../forms/RadioGroup";
 
-function ComplianceInfoSection() {
+function ComplianceInfoSection({domainRequest,updateDomainRequest}) {
+
+  const {complianceStatus} = domainRequest;
+
+  const onChangeHandlerGicw = (e)=>{
+    const { name, value } = e.target;
+    updateDomainRequest('complianceStatus', {
+      ...complianceStatus,
+      [name]: value,
+    });
+  };
+
+
   return (
     <div>
       <RadioGroup
         label="GIGW/ICT Compliant"
-        name="gigwIctCompliant"
+        name="gigwCompliance"
         isRequired={true} // Assuming required
         options={[
-          { value: "Yes", label: "Yes" },
-          { value: "No", label: "No" },
-          { value: "NA", label: "NA" }, // Not Applicable
+          { value: "YES", label: "Yes" },
+          { value: "NO", label: "No" },
+          { value: "NA", label: "N/a" }, // Not Applicable
         ]}
-        // selectedValue={...} // Add state later
-        // onChange={...} // Add state later
+        selectedValue={complianceStatus.gigwCompliance} // Add state later
+        onChange={onChangeHandlerGicw} // Add state later
       />
       {/* Add conditional fields/notes here later if needed based on selection */}
     </div>

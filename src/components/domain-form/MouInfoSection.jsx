@@ -2,7 +2,17 @@
 import React from "react";
 import RadioGroup from "../forms/RadioGroup";
 
-function MouInfoSection() {
+function MouInfoSection({domainRequest,updateDomainRequest}) {
+
+  const {complianceStatus} = domainRequest;
+
+  const onChangeHandlerMou = (e)=>{
+    const { name, value } = e.target;
+    updateDomainRequest('complianceStatus', {
+      ...complianceStatus,
+      [name]: value,
+    });
+  };
   return (
     <div>
       <RadioGroup
@@ -10,12 +20,12 @@ function MouInfoSection() {
         name="mouStatus"
         isRequired={true} // Assuming required
         options={[
-          { value: "Yes", label: "Yes" },
-          { value: "No", label: "No" },
-          { value: "NA", label: "NA" }, // Not Applicable
+          { value: "YES", label: "Yes" },
+          { value: "NO", label: "No" },
+          { value: "NA", label: "N/a" }, // Not Applicable
         ]}
-        // selectedValue={...} // Add state later
-        // onChange={...} // Add state later
+        selectedValue={complianceStatus.MouInfoSection} // Add state later
+        onChange={onChangeHandlerMou} // Add state later
       />
       {/* Add conditional fields (e.g., MOU upload) here later if needed based on selection */}
     </div>

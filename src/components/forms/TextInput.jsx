@@ -22,6 +22,7 @@ function TextInput({
       </label>
       <input
         type={type}
+        // type="tel"
         id={id}
         name={name || id} // Default name to id if not provided
         placeholder={placeholder || `Enter ${label}`}

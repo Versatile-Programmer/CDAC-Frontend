@@ -14,13 +14,17 @@ import "./App.css"; // Your global styles if any
 // --- Page Components ---
 import AssignDrmPage from "./pages/AssignDrmPage";
 import AddDomainPage from "./pages/AddDomainPage";
-import DrmDashboardPage from "./pages/DrmDashboardPage"; // Renamed import for clarity if needed
+// Renamed import for clarity if needed
 import ExpiringDomainsPage from "./pages/ExpiringDomainPage"; // Ensure filename matches import
-import HodDashboardPage from "./pages/HodDashboardPage";
+import DrmProjectsPage from "./pages/ViewProjectsPage";
 import Login from "./pages/Login"; // Assuming Login is the LoginPage component
 import ViewDomainsPage from "./pages/ViewDomainsPage";
 import DomainDetailPage from "./pages/DomainDetailPage";
 import DashboardPage from "./pages/Dashboard";
+import RenewDomainsPage from "./pages/RenewDomainsPage";
+import DomainRenewalPage from "./pages/DomainRenewalPage";
+
+
 
 // A simple component for 404 - can be customized later
 const NotFoundPage = () => (
@@ -68,18 +72,34 @@ function App() {
         /> */}
 
         {/* Domain Management */}
-        <Route path="/domains/add" element={<AddDomainPage />} />
+        <Route path="/domains/add" element={
+          <ProtectedRoute>
+            <AddDomainPage />
+          </ProtectedRoute>
+          } />
         {/* Route for viewing domains expiring within X days */}
         <Route
           path="/domains/expiring/:days"
-          element={<ExpiringDomainsPage />}
+          element={
+            <ProtectedRoute>
+              <ExpiringDomainsPage />
+            </ProtectedRoute>
+        }
         />
         {/* Route for the generic "View Domains" list */}
-        <Route path="/domains/view" element={<ViewDomainsPage />} />
+        <Route path="/domains/view" element={
+          <ProtectedRoute>
+            <ViewDomainsPage/>
+          </ProtectedRoute>
+          } />
         {/* Route for viewing the details of a specific domain */}
         <Route
           path="/domains/details/:domain_id"
-          element={<DomainDetailPage />}
+          element={
+            <ProtectedRoute>
+              <DomainDetailPage />
+            </ProtectedRoute>
+        }
         />
 
         {/* HOD Actions */}
@@ -90,6 +110,26 @@ function App() {
         </ProtectedRoute>
           
           } />
+
+          <Route path="/list/projects" element={
+            <ProtectedRoute>
+            <DrmProjectsPage/>
+        </ProtectedRoute>
+            
+          } />
+          <Route path="/domains/renew" element={
+            <ProtectedRoute>
+             <RenewDomainsPage/>
+            </ProtectedRoute>
+
+          } />
+          <Route path="/domains/renew/:dmId" element={
+            <ProtectedRoute>
+            <DomainRenewalPage/>
+           </ProtectedRoute>
+
+          } />
+
 
         {/* --- Omitted routes for pages not listed in your imports --- */}
         {/* e.g., Renew, Transfer/Delete List, Reports, Assigned Projects, Verify Requests */}

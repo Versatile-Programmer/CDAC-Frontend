@@ -3,17 +3,30 @@ import React from "react";
 import TextInput from "../forms/TextInput";
 import RadioGroup from "../forms/RadioGroup"; // Reusing RadioGroup
 
-function IpInfoSection() {
+function IpInfoSection({domainRequest,updateDomainRequest}) {
+
+
+  const {ipDetails} = domainRequest
+
+  const onChangeHandlerIp = (e)=>{
+    const { name, value } = e.target;
+    updateDomainRequest('ipDetails', {
+      ...ipDetails,
+      [name]: value,
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
       <TextInput
         label="IP Address"
         id="ipAddress"
-        name="ipAddress"
+        name="publicIpAddress"
         isRequired={true}
         placeholder="e.g., 10.7.86.5"
+        type="text"
         // value={...} // Add state later
-        // onChange={...} // Add state later
+        onChange={onChangeHandlerIp} // Add state later
       />
       <TextInput
         label="Issuer of IP Address"
@@ -22,7 +35,7 @@ function IpInfoSection() {
         isRequired={true}
         placeholder="e.g., NIC, NKN, etc."
         // value={...} // Add state later
-        // onChange={...} // Add state later
+        onChange={onChangeHandlerIp} // Add state later
       />
       {/* Server Hardening Status spans both columns */}
       <div className="md:col-span-2 mt-2">
@@ -33,11 +46,12 @@ function IpInfoSection() {
           name="serverHardeningStatus"
           isRequired={true} // Assuming this is required
           options={[
-            { value: "Yes", label: "Yes" },
-            { value: "No", label: "No" },
+            { value: "YES", label: "Yes" },
+            { value: "NO", label: "No" },
+            { value: "NA", label: "N/a"}
           ]}
-          // selectedValue={...} // Add state later
-          // onChange={...} // Add state later
+          selectedValue={ipDetails.serverHardeningStatus} // Add state later
+          onChange={onChangeHandlerIp} // Add state later
         />
       </div>
     </div>

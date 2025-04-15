@@ -50,7 +50,7 @@ function DashboardPage() {
     {
       title: "Add Domain Name Request",
       IconComponent: MdOutlineAddCircleOutline,
-      linkTo: "/domains/add",
+      linkTo: "/list/projects",
     },
     {
       title: "Renew Domain",
