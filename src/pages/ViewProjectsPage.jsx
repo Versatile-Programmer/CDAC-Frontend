@@ -127,10 +127,10 @@ import { getThemeForDays } from "../utils/themes";
 import axios from "axios";
 import fetchUser from "../utils/fetchUser";
 import { API_BASE_URL } from "../config/env.config";
-import { isAuthenticatedState } from "../recoil/atoms/authState.js";
+import { authTokenState, isAuthenticatedState } from "../recoil/atoms/authState.js";
 
 function DrmProjectsPage() {
-  const isAuthenticated = useRecoilValue(isAuthenticatedState);
+  const isAuthenticated = useRecoilValue(authTokenState);
   const user = fetchUser();
   const navigate = useNavigate();
 
@@ -151,7 +151,7 @@ function DrmProjectsPage() {
           {
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${isAuthenticated}`,
+              'Authorization': `Bearer ${isAuthenticated}`,
             },
           }
         );
@@ -173,8 +173,8 @@ function DrmProjectsPage() {
   // Define table columns (Removed the Status column)
   const columns = [
     { header: "Serial No.", accessor: "serialNo" },
-    { header: "Project Name", accessor: "projectName" },
-    { header: "Project Description", accessor: "projectDescription" },
+    { header: "Project Name", accessor: "project_name" },
+    { header: "Project Description", accessor: "project_remarks" },
     { header: "Actions", accessor: "actions" },
   ];
 
@@ -190,7 +190,7 @@ function DrmProjectsPage() {
     serialNo: index + 1,
     actions: (
       <button
-        onClick={() => handleApplyForDomain(item.projectId)}
+        onClick={() => handleApplyForDomain(item.project_id)}
         className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
       >
         Apply for Domain Name

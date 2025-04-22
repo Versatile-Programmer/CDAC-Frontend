@@ -169,7 +169,7 @@ import { MdOutlineLock } from "react-icons/md";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/env.config.js";
 import { useRecoilValue } from "recoil";
-import { isAuthenticatedState } from "../../recoil/atoms/authState.js";
+import { authTokenState, isAuthenticatedState } from "../../recoil/atoms/authState.js";
 
 function DrmAssignmentSection({ user }) {
   // Initial state for DRM details, using user's centre and group values as defaults.
@@ -185,7 +185,7 @@ function DrmAssignmentSection({ user }) {
   const [error, setError] = useState("");
   const [drmFound, setDrmFound] = useState(false);
   
-  const isAuthenticated = useRecoilValue(isAuthenticatedState);
+  const isAuthenticated = useRecoilValue(authTokenState);
 
   useEffect(() => {
     // If no DRM Employee Number is provided, clear the names and exit.
@@ -231,7 +231,7 @@ function DrmAssignmentSection({ user }) {
           fname: response.data.drm_fname,
           lname: response.data.drm_lname,
           // Centre and group remain as initially set from the user
-          centre: user.employeeCentre,
+          centre: user.employeeCenter,
           group: user.employeeGroup,
         }));
         setLoading(false);

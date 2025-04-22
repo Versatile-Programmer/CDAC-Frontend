@@ -3,17 +3,25 @@ import React from "react";
 import TextInput from "../forms/TextInput";
 import RadioGroup from "../forms/RadioGroup"; // Reusing RadioGroup
 
-function IpInfoSection({domainRequest,updateDomainRequest}) {
+function IpInfoSection({ domainRequest, updateDomainRequest }) {
 
 
-  const {ipDetails} = domainRequest
+  const { ipDetails } = domainRequest
 
-  const onChangeHandlerIp = (e)=>{
+  const onChangeHandlerIp = (e) => {
     const { name, value } = e.target;
-    updateDomainRequest('ipDetails', {
-      ...ipDetails,
-      [name]: value,
-    });
+
+
+    if (name == 'serverHardeningStatus')
+      updateDomainRequest('ipDetails', {
+        ...ipDetails,
+        [name]: value === "true",
+      });
+    else
+      updateDomainRequest('ipDetails', {
+        ...ipDetails,
+        [name]: value,
+      });
   };
 
   return (
@@ -46,9 +54,9 @@ function IpInfoSection({domainRequest,updateDomainRequest}) {
           name="serverHardeningStatus"
           isRequired={true} // Assuming this is required
           options={[
-            { value: "YES", label: "Yes" },
-            { value: "NO", label: "No" },
-            { value: "NA", label: "N/a"}
+            { value: true, label: "Yes" },
+            { value: false, label: "No" },
+            // { value: "NA", label: "N/a"}
           ]}
           selectedValue={ipDetails.serverHardeningStatus} // Add state later
           onChange={onChangeHandlerIp} // Add state later

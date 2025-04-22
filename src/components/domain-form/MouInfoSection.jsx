@@ -24,7 +24,7 @@ function MouInfoSection({domainRequest,updateDomainRequest}) {
           { value: "NO", label: "No" },
           { value: "NA", label: "N/a" }, // Not Applicable
         ]}
-        selectedValue={complianceStatus.MouInfoSection} // Add state later
+        selectedValue={complianceStatus.mouStatus} // Add state later
         onChange={onChangeHandlerMou} // Add state later
       />
       {/* Add conditional fields (e.g., MOU upload) here later if needed based on selection */}

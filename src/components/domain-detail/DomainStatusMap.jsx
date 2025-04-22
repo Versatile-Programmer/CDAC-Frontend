@@ -18,7 +18,7 @@ function DomainStatusMap({ domainStatus }) {
     // Add other steps as needed
   ];
 
-  const currentStepIndex = steps.indexOf(domainStatus);
+  const currentStepIndex = steps.indexOf(domainStatus) + 1;
   const unknownStatus = currentStepIndex === -1;
 
   return (

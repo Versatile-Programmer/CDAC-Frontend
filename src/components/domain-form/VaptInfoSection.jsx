@@ -135,11 +135,31 @@ function VaptInfoSection({ domainRequest, updateDomainRequest }) {
   const onChangeHandlerVapt = (e) => {
     const { name, value, type, files } = e.target;
 
-    if (type === "file") {
+    if (name === 'compliant') {
+      // const isVaptCompliant = vaptCompliance.compliant === "YES"?true:(vaptCompliance.compliant === "NO"?false:'');
+
       updateDomainRequest("vaptCompliance", {
         ...vaptCompliance,
-        [name]: files[0] || null,
+        [name]: value === "true",
       });
+    }
+    else if (type === "file") {
+      const file = files[0]
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Enc = reader.result.split(",")[1];
+        console.log("BASE 64=",base64Enc)
+
+
+
+        updateDomainRequest("vaptCompliance", {
+          ...vaptCompliance,
+          [name]: base64Enc,
+        });
+      }
+      reader.readAsDataURL(file);
+
     } else {
       updateDomainRequest("vaptCompliance", {
         ...vaptCompliance,
@@ -148,8 +168,8 @@ function VaptInfoSection({ domainRequest, updateDomainRequest }) {
     }
   };
 
-  const isVaptCompliant = vaptCompliance.compliant === "YES";
-  const isVaptNotCompliant = vaptCompliance.compliant === "NO";
+  const isVaptCompliant = vaptCompliance.compliant === true;
+  const isVaptNotCompliant = vaptCompliance.compliant === false;
 
   return (
     <div className="space-y-4">
@@ -158,9 +178,9 @@ function VaptInfoSection({ domainRequest, updateDomainRequest }) {
         name="compliant"
         isRequired={true}
         options={[
-          { value: "YES", label: "Yes" },
-          { value: "NO", label: "No" },
-          { value: "NA", label: "N/a" },
+          { value: true, label: "Yes" },
+          { value: false, label: "No" },
+          // { value: "NA", label: "N/a" },
         ]}
         selectedValue={vaptCompliance.compliant}
         onChange={onChangeHandlerVapt}

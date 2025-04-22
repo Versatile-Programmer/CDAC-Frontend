@@ -37,7 +37,7 @@
 //   // Dummy handler for the final form submit
 //   const handleFormSubmit = (e) => {
 //     e.preventDefault();
-   
+
 //   };
 
 //   return (
@@ -108,7 +108,7 @@
 // export default AddDomainPage;
 // src/pages/AddDomainPage.jsx
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import MainLayout from "../layouts/MainLayout";
 import FormSection from "../components/forms/FormSection";
@@ -124,16 +124,27 @@ import MouInfoSection from "../components/domain-form/MouInfoSection";
 import ArmInfoSection from "../components/domain-form/ArmInfoSection";
 import TermsAndConditionsSection from "../components/domain-form/TermsAndConditionsSection";
 import { API_BASE_URL } from "../config/env.config";
-import { isAuthenticatedState } from "../recoil/atoms/authState";
+import { authTokenState, isAuthenticatedState } from "../recoil/atoms/authState";
 import fetchUser from "../utils/fetchUser";
+import { useRecoilValue } from "recoil";
 
 function AddDomainPage() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const projectId = queryParams.get("projectId");
   const user = fetchUser();
+  const navigate = useNavigate()
 
-  const isAuthenticated = useRecoilValue(isAuthenticatedState);
+  const isAuthenticated = useRecoilValue(authTokenState);
+
+
+
+
+
+
+  // State to store project details fetched from the API.
+  const [projectDetails, setProjectDetails] = useState({
+  });
 
   const [domainRequest, setDomainRequest] = useState({
     drmInfo: {
@@ -141,29 +152,29 @@ function AddDomainPage() {
       lname: "",
       groupId: null,
       centreId: null,
-      designation: "", // enum, e.g., "ENGINEER"
-      email: user.employeeEmail,
+      designation: "",
+      email: "",
       teleNumber: "",
       mobileNumber: "",
-      empNo: user.id
+      empNo: user.id,
     },
     armInfo: {
       fname: "",
       lname: "",
       groupId: null,
       centreId: null,
-      designation: "", // enum
+      designation: "",
       email: "",
       teleNumber: "",
       mobileNumber: "",
-      empNo: null
+      empNo: null,
     },
     domainDetails: {
       domainName: "",
       description: "",
       serviceType: "", // enum, e.g., "WEB"
       periodInYears: null,
-      // registrationType: "NEW" ---
+      registrationType: "NEW"
     },
     approverInfo: {
       hodEmpNo: null,
@@ -191,40 +202,77 @@ function AddDomainPage() {
     }
   });
 
-  const updateDomainRequest = (section,updatedData)=>{
-    setDomainRequest((prev)=>({
+  const updateDomainRequest = (section, updatedData) => {
+    setDomainRequest((prev) => ({
       ...prev,
-      [section]:updatedData
+      [section]: updatedData
     }));
   }
 
 
-  
 
-
-  // State to store project details fetched from the API.
-  const [projectDetails, setProjectDetails] = useState({
-    hodName: "",
-    projectName: "",
-    projectRemarks: "",
-    armEmpNo:null
-  });
 
   // useEffect to fetch project details if a projectId is provided.
   useEffect(() => {
     if (!projectId) return;
     const fetchProjectDetails = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/projects/${projectId}`, {
+        const response = await axios.get(`${API_BASE_URL}/api/users/project/${projectId}`, {
           headers: {
             "Content-Type": "application/json",
             // Optionally add any authorization header if required:
             'Authorization': `Bearer ${isAuthenticated}`
           },
         });
+        console.log("PROJECTY DETAILS", response.data)
         // Assuming the response data has keys: hodName, projectName, projectRemarks
-        const { hodName, projectName, projectRemarks, armEmpNo } = response.data;
-        setProjectDetails({ hodName, projectName, projectRemarks,armEmpNo});
+        // const { 
+        //   hod:{hod_fname,hod_lname},
+        //   project_name:projectName, 
+        //   project_remarks:projectRemarks, 
+        //   arm_emp_no:armEmpNo
+        //  } = response.data;
+
+        //  const hodName = `${hod_fname} ${hod_lname}`
+
+        updateDomainRequest("armInfo", {
+          fname: response.data.arm.arm_fname,
+          lname: response.data.arm.arm_lname,
+          groupId: response.data.arm.grp_id,
+          centreId: response.data.arm.centre_id,
+          designation: response.data.arm.desig,
+          email: response.data.arm.email_id,
+          teleNumber: response.data.arm.tele_no,
+          mobileNumber: response.data.arm.mob_no,
+          empNo: response.data.arm.emp_no,
+        });
+        // responsibleOfficials
+
+        updateDomainRequest("approverInfo", {
+          hodEmpNo: response.data.responsibleOfficials.hod_emp_no,
+          edEmpNo: response.data.responsibleOfficials.ed_emp_no,
+          netopsEmpNo: response.data.responsibleOfficials.netops_emp_no,
+          webmasterEmpNo: response.data.responsibleOfficials.webmaster_emp_no,
+          hodHpcEmpNo: response.data.responsibleOfficials.hod_hpc_iande_emp_no
+        });
+
+      
+        // And the fetched `drm` object into your state
+        updateDomainRequest("drmInfo", {
+          fname: response.data.drm.drm_fname,
+          lname: response.data.drm.drm_lname,
+          groupId: response.data.drm.grp_id,
+          centreId: response.data.drm.centre_id,
+          designation: response.data.drm.desig,
+          email: response.data.drm.email_id,
+          teleNumber: response.data.drm.tele_no,
+          mobileNumber: response.data.drm.mob_no,
+          empNo: response.data.drm.emp_no,
+        });
+
+
+
+        setProjectDetails(response.data);
       } catch (error) {
         console.error("Error fetching project details:", error);
       }
@@ -233,15 +281,39 @@ function AddDomainPage() {
     fetchProjectDetails();
   }, [projectId]);
 
-  
+
 
 
   // Dummy handler for final form submit.
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     // Handle form submission logic here.
 
-    console.log("PAYLOAD FOR DOMAIN REGISTRATION",domainRequest)
+    console.log("PAYLOAD FOR DOMAIN REGISTRATION", domainRequest)
+
+    //CONVERTING LOCALDATE TO LOCALDATE TIME
+    const date = new Date(domainRequest.vaptCompliance.certificateExpiryDate); // or your selected date
+    const isoDateTime = date.toISOString().slice(0, 19); // "2025-04-29T00:00:00"
+
+    domainRequest.vaptCompliance.certificateExpiryDate = isoDateTime
+
+    try {
+
+      const response = await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`,domainRequest,{
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':`Bearer ${isAuthenticated}`
+        }
+      })
+
+      navigate('/dashboard')
+      
+    } catch (error) {
+      console.log("EROROR",error)
+      throw new Error(error)
+      
+    }
+
 
   };
 
@@ -258,24 +330,26 @@ function AddDomainPage() {
           </FormSection>
 
           <FormSection title="DRM Information" initiallyOpen={true}>
-            <DrmInfoSection user={user} domainRequest={domainRequest} 
-            updateDomainRequest={updateDomainRequest} />
+            <DrmInfoSection user={user}
+              domainRequest={domainRequest}
+              updateDomainRequest={updateDomainRequest}
+              projectDetails={projectDetails} />
           </FormSection>
 
           <FormSection title="Registration Information" initiallyOpen={true}>
-            <RegistrationInfoSection domainRequest={domainRequest} 
-              updateDomainRequest={updateDomainRequest}/>
+            <RegistrationInfoSection domainRequest={domainRequest}
+              updateDomainRequest={updateDomainRequest} />
           </FormSection>
 
           <FormSection title="IP Information" initiallyOpen={true}>
-            <IpInfoSection domainRequest={domainRequest} 
-            updateDomainRequest={updateDomainRequest}
+            <IpInfoSection domainRequest={domainRequest}
+              updateDomainRequest={updateDomainRequest}
             />
           </FormSection>
 
           <FormSection title="VAPT Information" initiallyOpen={true}>
             <VaptInfoSection domainRequest={domainRequest}
-            updateDomainRequest={updateDomainRequest}
+              updateDomainRequest={updateDomainRequest}
             />
           </FormSection>
 
@@ -283,24 +357,24 @@ function AddDomainPage() {
             title="Compliance (GIGW/ICT Accessibility)"
             initiallyOpen={true}
           >
-            <ComplianceInfoSection domainRequest={domainRequest} 
-           updateDomainRequest={updateDomainRequest} />
+            <ComplianceInfoSection domainRequest={domainRequest}
+              updateDomainRequest={updateDomainRequest} />
           </FormSection>
 
           <FormSection title="Memorandum of Understanding" initiallyOpen={true}>
             <MouInfoSection domainRequest={domainRequest}
-             updateDomainRequest={updateDomainRequest}
-             />
+              updateDomainRequest={updateDomainRequest}
+            />
           </FormSection>
 
           <FormSection title="ARM Information" initiallyOpen={true}>
-            <ArmInfoSection domainRequest={domainRequest} 
-            updateDomainRequest={updateDomainRequest} armEmpNo={projectDetails.armEmpNo}/>
+            <ArmInfoSection domainRequest={domainRequest}
+              updateDomainRequest={updateDomainRequest} projectDetails={projectDetails} />
           </FormSection>
 
           <FormSection title="Terms and Conditions" initiallyOpen={true}>
-            <TermsAndConditionsSection domainRequest={domainRequest} 
-             updateDomainRequest={updateDomainRequest} />
+            <TermsAndConditionsSection domainRequest={domainRequest}
+              updateDomainRequest={updateDomainRequest} />
           </FormSection>
 
           <div className="mt-8 flex justify-end">

@@ -85,12 +85,12 @@ function DomainDetailPage() {
         </div>
 
         {/* Section 1: Domain Information Display */}
-        <section className="bg-white p-6 rounded-lg shadow border border-gray-200">
+        {/* <section className="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
             <MdOutlineInfo className="mr-2 text-blue-500" /> Information
           </h3>
           <DomainInfoDisplay domainData={domainData} />
-        </section>
+        </section> */}
 
         {/* Section 2: Status Map */}
         <section className="bg-white p-6 rounded-lg shadow border border-gray-200">

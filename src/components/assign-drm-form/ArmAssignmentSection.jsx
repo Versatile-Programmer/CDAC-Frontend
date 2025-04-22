@@ -95,7 +95,7 @@ import { MdOutlineLock } from "react-icons/md";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/env.config.js";
 import { useRecoilValue } from "recoil";
-import { isAuthenticatedState } from "../../recoil/atoms/authState.js";
+import { authTokenState, isAuthenticatedState } from "../../recoil/atoms/authState.js";
 
 function ArmAssignmentSection({ user }) {
   // Use user.employeeCentre and user.employeeGroup as defaults.
@@ -109,7 +109,7 @@ function ArmAssignmentSection({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [armFound, setArmFound] = useState(false);
-  const isAuthenticated = useRecoilValue(isAuthenticatedState);
+  const isAuthenticated = useRecoilValue(authTokenState);
 
   useEffect(() => {
     if (!armEmpNo || armEmpNo === -1) {
@@ -151,7 +151,7 @@ function ArmAssignmentSection({ user }) {
           ...prevDetails,
           fname: response.data.arm_fname,
           lname: response.data.arm_lname,
-          centre: user.employeeCentre,
+          centre: user.employeeCenter,
           group: user.employeeGroup,
         }));
         setLoading(false);

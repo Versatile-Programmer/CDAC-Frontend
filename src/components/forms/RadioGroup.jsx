@@ -9,6 +9,7 @@ function RadioGroup({
   isRequired = false,
   selectedValue,
   onChange,
+  readOnly = false
 }) {
   return (
     <fieldset className="mb-4">
@@ -24,7 +25,8 @@ function RadioGroup({
               type="radio"
               value={option.value}
               checked={selectedValue === option.value} // Control checked state
-              onChange={onChange} // Handle change
+              onChange={!readOnly ? onChange : undefined}
+              disabled={readOnly}// Handle change
               required={isRequired}
               className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
             />

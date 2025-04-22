@@ -23,6 +23,17 @@ import DomainDetailPage from "./pages/DomainDetailPage";
 import DashboardPage from "./pages/Dashboard";
 import RenewDomainsPage from "./pages/RenewDomainsPage";
 import DomainRenewalPage from "./pages/DomainRenewalPage";
+import TransferDeleteDomainsPage from "./pages/ViewTransferDelete";
+import ApplyTransferPage from "./pages/TransferPage";
+import HodAssignedProjectsPage from "./pages/HodAssignedDomains";
+import VerifyDomainRequestsPage from "./pages/GenericDomainVerificationPage";
+import GenericDomainVerificationPage from "./pages/GenericDomainVerificationPage";
+import GenericDomainDetailPage from "./pages/GenericDomainDetailPage";
+import ViewVaptRenewalsPage from "./pages/ViewVaptRenewalsPage";
+import VerifyVaptRenewalPage from "./pages/VerifyVaptRenewalPage";
+import VerifyTransferPage from "./pages/VerifyTransferPage";
+import DomainDetailViewPage from "./pages/DomainDetailViewPage";
+import PurchaseDetailsForm from "./pages/PurchaseDetailsForm";
 
 
 
@@ -61,22 +72,13 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Using '/hod-dashboard' for the HOD view as per earlier convention */}
-        {/* <Route
-          path="/hod-dashboard" 
-          element={
-            <ProtectedRoute>
-              <HodDashboardPage />
-            </ProtectedRoute>
-          }
-        /> */}
 
         {/* Domain Management */}
         <Route path="/domains/add" element={
           <ProtectedRoute>
             <AddDomainPage />
           </ProtectedRoute>
-          } />
+        } />
         {/* Route for viewing domains expiring within X days */}
         <Route
           path="/domains/expiring/:days"
@@ -84,51 +86,303 @@ function App() {
             <ProtectedRoute>
               <ExpiringDomainsPage />
             </ProtectedRoute>
-        }
+          }
         />
         {/* Route for the generic "View Domains" list */}
         <Route path="/domains/view" element={
           <ProtectedRoute>
-            <ViewDomainsPage/>
+            <ViewDomainsPage />
           </ProtectedRoute>
-          } />
+        } />
         {/* Route for viewing the details of a specific domain */}
         <Route
-          path="/domains/details/:domain_id"
+          path="/domains/details/:domainId"
           element={
             <ProtectedRoute>
-              <DomainDetailPage />
+              <DomainDetailViewPage />
             </ProtectedRoute>
-        }
+          }
         />
+        <Route path="/domains/transfer-delete"
+          element={
+            <ProtectedRoute>
+              <TransferDeleteDomainsPage />
+            </ProtectedRoute>
+
+          } />
+
+        <Route path="/domains/transfer/:domainId"
+          element={
+            <ProtectedRoute>
+              <ApplyTransferPage />
+            </ProtectedRoute>
+
+          } />
+
+
+        <Route path="/list/projects" element={
+          <ProtectedRoute>
+            <DrmProjectsPage />
+          </ProtectedRoute>
+
+        } />
+        <Route path="/domains/renew" element={
+          <ProtectedRoute>
+            <RenewDomainsPage />
+          </ProtectedRoute>
+
+        } />
+        <Route path="/domains/renew/:dmId" element={
+          <ProtectedRoute>
+            <DomainRenewalPage />
+          </ProtectedRoute>
+
+        } />
+
+        {/* ARM Actions */}
+
+        <Route path="/domains/arm/verify-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/ARM/domain-verify-requests'}
+              verifyPathPrefix={'/detailed-domain/arm'} title="ARM-Domain Request Consent"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/detailed-domain/arm/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"arm"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/domains/arm/verify-renewal" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/ARM'}
+              verifyPathPrefix={'/detailed-domain/arm'}
+              title="ARM-Domain Renewal Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+        } />
+
+        {/* ARM END */}
 
         {/* HOD Actions */}
 
         <Route path="/projects/assign" element={
           <ProtectedRoute>
             <AssignDrmPage />
-        </ProtectedRoute>
-          
-          } />
+          </ProtectedRoute>
 
-          <Route path="/list/projects" element={
-            <ProtectedRoute>
-            <DrmProjectsPage/>
-        </ProtectedRoute>
-            
-          } />
-          <Route path="/domains/renew" element={
-            <ProtectedRoute>
-             <RenewDomainsPage/>
-            </ProtectedRoute>
+        } />
+        <Route path="/projects/assigned" element={
+          <ProtectedRoute>
+            <HodAssignedProjectsPage />
+          </ProtectedRoute>
 
-          } />
-          <Route path="/domains/renew/:dmId" element={
-            <ProtectedRoute>
-            <DomainRenewalPage/>
-           </ProtectedRoute>
+        } />
 
-          } />
+        <Route path="/domains/hod/verify-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/HOD/domain-verify-requests'}
+              verifyPathPrefix={'/detailed-domain/hod'} title="HOD-Domain Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/detailed-domain/hod/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"hod"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/domains/hod/verify-renewal" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/HOD'}
+              verifyPathPrefix={'/detailed-domain/hod'}
+              title="HOD-Domain Renewal Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+
+        <Route path="/view/vapt-renewals" element={
+          <ProtectedRoute>
+            <ViewVaptRenewalsPage />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/view/detail/vapt-renewal/:vaptRenewalId" element={
+          <ProtectedRoute>
+            <VerifyVaptRenewalPage />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/domains/view/verify-transfer-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/view/transfer/hod'}
+              verifyPathPrefix={'/detailed-transfer-request'}
+              title="Verify Transfer Requests"
+              useFor={"transfer"} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/detailed-transfer-request/:transferId" element={
+          <ProtectedRoute>
+            <VerifyTransferPage />
+          </ProtectedRoute>
+        } />
+        {/* HOD END */}
+
+
+
+        {/* ED START */}
+        <Route path="/domains/ed/verify-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/ED/domain-verify-requests'}
+              verifyPathPrefix={'/detailed-domain'} title="ED-Domain Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/detailed-domain/ed/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"ed"} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/domains/ed/verify-renewal" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/ED'}
+              verifyPathPrefix={'/detailed-domain/ed'}
+              title="ED-Domain Renewal Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+        } />
+
+        {/* ED END */}
+
+        {/* NETOPS START */}
+
+
+        <Route path="/domains/netops/verify-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/NETOPS/domain-verify-requests'}
+              verifyPathPrefix={'/detailed-domain'} title="NETOPS-Domain Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/detailed-domain/netops/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"netops"} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/domains/netops/verify-renewal" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/NETOPS'}
+              verifyPathPrefix={'/detailed-domain/netops'}
+              title="NETOPS-Domain Renewal Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+        } />
+
+        {/* NETOPS END */}
+
+        {/* WEBMASTER START */}
+
+        <Route path="/domains/webmaster/verify-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/WEBMASTER/domain-verify-requests'}
+              verifyPathPrefix={'/detailed-domain'} title="WEBMASTER-Domain Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/detailed-domain/webmaster/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"webmaster"} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/domains/webmaster/verify-renewal" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/WEBMASTER'}
+              verifyPathPrefix={'/detailed-domain/webmaster'}
+              title="WEBMASTER-Domain Renewal Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+        } />
+
+        {/* NEED TO CREATE A API FOR DOMAIN PURCHASE DETAILS AND DOMAIN PURCHASE VIEW DETAILS IN BACKEND */}
+
+        <Route path="/domains/webmaster/purchase-details" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-purchase-view/WEBMASTER'}
+              verifyPathPrefix={'/detailed-domain/purchase/webmaster'}
+              title="WEBMASTER-Domain Purchase Details"
+              useFor={"domain"} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="detailed-domain/purchase/webmaster/:domainId" element={
+          <ProtectedRoute>
+            <PurchaseDetailsForm />
+          </ProtectedRoute>
+        } />
+
+
+
+
+        {/* WEBMASTER END */}
+
+        {/* HODHPC START */}
+
+
+        <Route path="/domains/hodhpc/verify-requests" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/HODHPC/domain-verify-requests'}
+              verifyPathPrefix={'/detailed-domain'} title="HODHPC-Domain Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+
+        } />
+
+        <Route path="/detailed-domain/hodhpc/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"hodhpc"} />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/domains/hodhpc/verify-renewal" element={
+          <ProtectedRoute>
+            <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/HODHPC'}
+              verifyPathPrefix={'/detailed-domain/hodhpc'}
+              title="HODHPC-Domain Renewal Verification"
+              useFor={"domain"} />
+          </ProtectedRoute>
+        } />
+
+
+
+        {/* HODHPC END */}
+
+
+
+
+
+
+
 
 
         {/* --- Omitted routes for pages not listed in your imports --- */}

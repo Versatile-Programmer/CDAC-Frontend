@@ -1,60 +1,83 @@
 // src/components/domain-form/DrmInfoSection.jsx
-import React from "react";
+import React, { useState } from "react";
 import TextInput from "../forms/TextInput";
 import RadioGroup from "../forms/RadioGroup";
+import { useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { authTokenState } from "../../recoil/atoms/authState";
 // Import DatePicker component later
+import axios from "axios";
+import { API_BASE_URL } from "../../config/env.config";
 
-function DrmInfoSection({user,domainRequest,updateDomainRequest}) {
+function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails}) {
 
   const {drmInfo} = domainRequest
   const {domainDetails} = domainRequest
+  const isAuthenticated = useRecoilValue(authTokenState)
+  const [loading,setLoading] = useState(false)
+  const [error,setError] = useState(false)
+
 
   const drmEmpNo = user.id
 
 
-  useEffect(() => {
-      if (!drmEmpNo) return; // Don't fetch if armEmpNo is not provided
-  
-      const fetchDrmDetails = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const res = await axios.get(`${API_BASE_URL}/api/users/details/DRM/${drmEmpNo}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${isAuthenticated}`,
-            },
-          });
-  
-          console.log("DRM RESPONSE", res.data);
-          // Update the armInfo section with the response data.
-          updateDomainRequest("drmInfo", {
-            ...drmInfo,
-            empNo: res.data.emp_no,
-            fname: res.data.arm_fname,
-            lname: res.data.arm_lname,
-            email: res.data.email_id,
-            designation: res.data.desig,
-            teleNumber: res.data.tele_no,
-            mobileNumber: res.data.mob_no,
-            centreId: res.data.centre_id,
-            groupId: res.data.grp_id,
-          });
-        } catch (error) {
-          console.error("ERROR OCCURRED FETCHING DRM DETAILS", error);
-          setError("Failed to load DRM details. Please verify the employee number and try again.");
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchDrmDetails();
-    }, [drmEmpNo, isAuthenticated, updateDomainRequest, drmInfo]);
+  if (!projectDetails.drm) {
+    return <p>Loading project info…</p>;
+  }
 
+
+  // useEffect(() => {
+  //     if (!drmEmpNo) return; // Don't fetch if armEmpNo is not provided
+  
+  //     const fetchDrmDetails = async () => {
+  //       setLoading(true);
+  //       setError("");
+  //       try {
+  //         const res = await axios.get(`${API_BASE_URL}/api/users/details/DRM/${drmEmpNo}`, {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: `Bearer ${isAuthenticated}`,
+  //           },
+  //         });
+  
+  //         console.log("DRM RESPONSE", res.data);
+  //         // Update the armInfo section with the response data.
+  //         updateDomainRequest("drmInfo", {
+  //           ...drmInfo,
+  //           empNo: res.data.emp_no,
+  //           fname: res.data.arm_fname,
+  //           lname: res.data.arm_lname,
+  //           email: res.data.email_id,
+  //           designation: res.data.desig,
+  //           teleNumber: res.data.tele_no,
+  //           mobileNumber: res.data.mob_no,
+  //           centreId: res.data.centre_id,
+  //           groupId: res.data.grp_id,
+  //         });
+  //       } catch (error) {
+  //         console.error("ERROR OCCURRED FETCHING DRM DETAILS", error);
+  //         setError("Failed to load DRM details. Please verify the employee number and try again.");
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
+  
+  //     fetchDrmDetails();
+  //   }, [drmEmpNo, isAuthenticated]);
+
+
+    const onChangeHandlerDrm = (e) =>{
+      const { name, value } = e.target;
+      updateDomainRequest('drmInfo', {
+        ...drmInfo,
+        [name]: value,
+      });
+
+    }
   
     const onChangeHandlerDomain = (e)=>{
       const { name, value } = e.target;
-      handler('domainDetails', {
+      updateDomainRequest('domainDetails', {
         ...domainDetails,
         [name]: value,
       });
@@ -70,7 +93,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest}) {
         name="drmFname"
         isRequired={true}
         readOnly={true}
-        placeholder={drmInfo.fname}
+        placeholder={projectDetails.drm.drm_fname}
       />
       <TextInput
         label="DRM Last Name"
@@ -78,7 +101,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest}) {
         name="drmLname"
         isRequired={true}
         readOnly={true}
-        placeholder={drmInfo.lname}
+        placeholder={projectDetails.drm.drm_lname}
       />
       <div>
         <label
@@ -142,7 +165,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest}) {
         name="mobileNumber"
         type="tel"
         isRequired={true}
-        onChange = {drmInfo.mobileNumber}
+        onChange = {onChangeHandlerDrm}
       />
       <TextInput
         label="Tele No./Ext. No"
@@ -150,7 +173,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest}) {
         name="teleNumber"
         type="tel"
         isRequired={true}
-        onChange = {drmInfo.teleNumber}
+        onChange = {onChangeHandlerDrm}
       />
 
       {/* Service Type spanning full width */}

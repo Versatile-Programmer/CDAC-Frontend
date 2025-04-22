@@ -113,12 +113,12 @@ import DrmAssignmentSection from "../components/assign-drm-form/DrmAssignmentSec
 import ArmAssignmentSection from "../components/assign-drm-form/ArmAssignmentSection";
 import { API_BASE_URL } from "../config/env.config.js";
 import { useRecoilValue } from "recoil";
-import { isAuthenticatedState } from "../recoil/atoms/authState.js";
+import { authTokenState, isAuthenticatedState } from "../recoil/atoms/authState.js";
 import { notifySuccess, notifyError } from "../utils/toastUtils"; // adjust the import path if needed
 
 function AssignDrmPage() {
   const navigate = useNavigate();
-  const isAuthenticated = useRecoilValue(isAuthenticatedState);
+  const isAuthenticated = useRecoilValue(authTokenState);
 
   // Helper to fetch the user object from localStorage.
   const fetchUser = () => {

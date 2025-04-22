@@ -25,8 +25,9 @@ function RegistrationInfoSection({domainRequest,updateDomainRequest}) {
             { value: "NEW_REGISTRATION", label: "New" },
             { value: "RENEWAL", label: "Renewal" },
           ]}
-          selectedValue={"NEW"} // Add state later
-          // onChange={...} // Add state later
+          readOnly ={true}
+          selectedValue={"NEW_REGISTRATION"} // Add state later
+          // onChange={onChangeHandlerDomain} // Add state later
         />
       </div>
       <TextInput

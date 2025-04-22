@@ -110,50 +110,64 @@ import { API_BASE_URL } from "../../config/env.config";
 import { useRecoilValue } from "recoil";
 import { isAuthenticatedState } from "../../recoil/atoms/authState";
 
-function ArmInfoSection({ domainRequest, updateDomainRequest, armEmpNo }) {
+function ArmInfoSection({ domainRequest, updateDomainRequest, projectDetails }) {
   const isAuthenticated = useRecoilValue(isAuthenticatedState);
   const { armInfo } = domainRequest;
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!armEmpNo) return; // Don't fetch if armEmpNo is not provided
 
-    const fetchArmDetails = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await axios.get(`${API_BASE_URL}/api/users/details/ARM/${armEmpNo}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${isAuthenticated}`,
-          },
-        });
+  if(!projectDetails.arm)
+    return <p>Arm Details are loading</p>
 
-        console.log("ARM RESPONSE", res.data);
-        // Update the armInfo section with the response data.
-        updateDomainRequest("armInfo", {
-          ...armInfo,
-          empNo: res.data.emp_no,
-          fname: res.data.arm_fname,
-          lname: res.data.arm_lname,
-          email: res.data.email_id,
-          designation: res.data.desig,
-          teleNumber: res.data.tele_no,
-          mobileNumber: res.data.mob_no,
-          centreId: res.data.centre_id,
-          groupId: res.data.grp_id,
-        });
-      } catch (error) {
-        console.error("ERROR OCCURRED FETCHING ARM DETAILS", error);
-        setError("Failed to load ARM details. Please verify the employee number and try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchArmDetails();
-  }, [armEmpNo, isAuthenticated, updateDomainRequest, armInfo]);
+  const onChangeHandler = (e)=>{
+    const { name, value } = e.target;
+    updateDomainRequest('armInfo', {
+      ...armInfo,
+      [name]: value,
+    });
+  };
+
+
+  // useEffect(() => {
+  //   if (!armEmpNo) return; // Don't fetch if armEmpNo is not provided
+
+  //   const fetchArmDetails = async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       const res = await axios.get(`${API_BASE_URL}/api/users/details/ARM/${armEmpNo}`, {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${isAuthenticated}`,
+  //         },
+  //       });
+
+  //       console.log("ARM RESPONSE", res.data);
+  //       // Update the armInfo section with the response data.
+  //       updateDomainRequest("armInfo", {
+  //         ...armInfo,
+  //         empNo: res.data.emp_no,
+  //         fname: res.data.arm_fname,
+  //         lname: res.data.arm_lname,
+  //         email: res.data.email_id,
+  //         designation: res.data.desig,
+  //         teleNumber: res.data.tele_no,
+  //         mobileNumber: res.data.mob_no,
+  //         centreId: res.data.centre_id,
+  //         groupId: res.data.grp_id,
+  //       });
+  //     } catch (error) {
+  //       console.error("ERROR OCCURRED FETCHING ARM DETAILS", error);
+  //       setError("Failed to load ARM details. Please verify the employee number and try again.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchArmDetails();
+  // }, [armEmpNo, isAuthenticated, updateDomainRequest, armInfo]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
@@ -177,6 +191,8 @@ function ArmInfoSection({ domainRequest, updateDomainRequest, armEmpNo }) {
         name="armEmpNo"
         isRequired={true}
         placeholder="Enter ARM's Employee No."
+        value = {projectDetails.arm_emp_no}
+        readOnly={true}
       />
       <div /> {/* Empty div for grid alignment */}
       <TextInput
@@ -184,16 +200,18 @@ function ArmInfoSection({ domainRequest, updateDomainRequest, armEmpNo }) {
         id="armFname"
         name="armFname"
         isRequired={true}
-        value={armInfo.fname || ""}
-        onChange={() => {}} // Field is auto-filled; change handler not required
+        readOnly={true}
+        value={projectDetails.arm.arm_fname || ""}
+        // onChange={() => {}} // Field is auto-filled; change handler not required
       />
       <TextInput
         label="Last Name Of Nominated ARM"
         id="armLname"
         name="armLname"
         isRequired={true}
-        value={armInfo.lname || ""}
-        onChange={() => {}}
+        readOnly={true}
+        value={projectDetails.arm.arm_lname || ""}
+        // onChange={() => {}}
       />
       <TextInput
         label="Email ID Of ARM"
@@ -201,27 +219,28 @@ function ArmInfoSection({ domainRequest, updateDomainRequest, armEmpNo }) {
         name="armEmail"
         type="email"
         isRequired={true}
-        value={armInfo.email || ""}
-        onChange={() => {}}
+        readOnly={true}
+        value={projectDetails.arm.email_id || ""}
+        // onChange={armInfo}
       />
       <div /> {/* Empty div for grid alignment */}
       <TextInput
         label="Mob No."
         id="armMobile"
-        name="armMobile"
+        name="mobileNumber"
         type="tel"
         isRequired={true}
-        value={armInfo.mobileNumber || ""}
-        onChange={() => {}}
+        value={armInfo.mobileNumber}
+        onChange={onChangeHandler}
       />
       <TextInput
         label="ARM's Tel No./Ext No."
         id="armTele"
-        name="armTele"
+        name="teleNumber"
         type="tel"
         isRequired={true}
-        value={armInfo.teleNumber || ""}
-        onChange={() => {}}
+        value={armInfo.teleNumber}
+        onChange={onChangeHandler}
       />
     </div>
   );
