@@ -8,27 +8,29 @@ import { authTokenState } from "../../recoil/atoms/authState";
 // Import DatePicker component later
 import axios from "axios";
 import { API_BASE_URL } from "../../config/env.config";
+import { get } from "lodash";
 
-function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails}) {
+function DrmInfoSection({
+  user,
+  domainRequest,
+  updateDomainRequest,
+  projectDetails,
+}) {
+  const { drmInfo } = domainRequest;
+  const { domainDetails } = domainRequest;
+  const isAuthenticated = useRecoilValue(authTokenState);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const {drmInfo} = domainRequest
-  const {domainDetails} = domainRequest
-  const isAuthenticated = useRecoilValue(authTokenState)
-  const [loading,setLoading] = useState(false)
-  const [error,setError] = useState(false)
-
-
-  const drmEmpNo = user.id
-
+  const drmEmpNo = user.id;
 
   if (!projectDetails.drm) {
     return <p>Loading project info…</p>;
   }
 
-
   // useEffect(() => {
   //     if (!drmEmpNo) return; // Don't fetch if armEmpNo is not provided
-  
+
   //     const fetchDrmDetails = async () => {
   //       setLoading(true);
   //       setError("");
@@ -39,7 +41,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails})
   //             Authorization: `Bearer ${isAuthenticated}`,
   //           },
   //         });
-  
+
   //         console.log("DRM RESPONSE", res.data);
   //         // Update the armInfo section with the response data.
   //         updateDomainRequest("drmInfo", {
@@ -61,30 +63,36 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails})
   //         setLoading(false);
   //       }
   //     };
-  
+
   //     fetchDrmDetails();
   //   }, [drmEmpNo, isAuthenticated]);
 
+  const onChangeHandlerDrm = (e) => {
+    const { name, value } = e.target;
+    updateDomainRequest("drmInfo", {
+      ...drmInfo,
+      [name]: value,
+    });
+  };
 
-    const onChangeHandlerDrm = (e) =>{
-      const { name, value } = e.target;
-      updateDomainRequest('drmInfo', {
-        ...drmInfo,
-        [name]: value,
-      });
+  const onChangeHandlerDomain = (e) => {
+    const { name, value } = e.target;
+    updateDomainRequest("domainDetails", {
+      ...domainDetails,
+      [name]: value,
+    });
+  };
 
-    }
-  
-    const onChangeHandlerDomain = (e)=>{
-      const { name, value } = e.target;
-      updateDomainRequest('domainDetails', {
-        ...domainDetails,
-        [name]: value,
-      });
-    };
-
-
-  // const [drmFname,drmLname] = user.name.split(" ") 
+  const getTodayDateString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    // getMonth() is 0-indexed (0 = Jan), so add 1
+    // padStart ensures month and day are 2 digits (e.g., '05' instead of '5')
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  // const [drmFname,drmLname] = user.name.split(" ")
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
       <TextInput
@@ -116,7 +124,9 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails})
           id="drmAssignDate"
           name="drmAssignDate"
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          disabled
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed text-gray-700"
+          value={getTodayDateString()}
         />
       </div>
       <TextInput
@@ -165,7 +175,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails})
         name="mobileNumber"
         type="tel"
         isRequired={true}
-        onChange = {onChangeHandlerDrm}
+        onChange={onChangeHandlerDrm}
       />
       <TextInput
         label="Tele No./Ext. No"
@@ -173,7 +183,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails})
         name="teleNumber"
         type="tel"
         isRequired={true}
-        onChange = {onChangeHandlerDrm}
+        onChange={onChangeHandlerDrm}
       />
 
       {/* Service Type spanning full width */}
@@ -197,7 +207,7 @@ function DrmInfoSection({user,domainRequest,updateDomainRequest,projectDetails})
           id="domainName"
           name="domainName"
           isRequired={true}
-          onChange = {onChangeHandlerDomain}
+          onChange={onChangeHandlerDomain}
         />
       </div>
       {/* Description spanning full width */}

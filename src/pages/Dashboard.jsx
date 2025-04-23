@@ -191,6 +191,27 @@ const expiringCounts = {
 };
 const daysList = [90, 60, 30, 15];
 
+ const presentableRoleName = (role) => {
+   switch (role) {
+     case "DRM":
+      return "DRM";
+     case "ARM":
+      return "ARM";
+     case "HOD":
+       return "HOD";
+     case "ED":
+       return "ED";
+     case "NETOPS":
+       return "NetOps";
+     case "WEBMASTER":
+       return "WebMaster";
+     case "HODHPC":  
+       return "HodHpcI&E";
+     default:
+       break;
+   }
+ };
+
 function DashboardPage() {
   const role = getUserRole();
 
@@ -264,7 +285,7 @@ function DashboardPage() {
 
         {/* Role-based Activities Section */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">{role} Activities</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">{presentableRoleName(role)} Activities</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
             {activitiesToRender.map((activity) => (
               <ActivityCard

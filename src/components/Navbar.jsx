@@ -80,7 +80,7 @@ const getUserRole = fetchUser()
 const navMap = {
   'DRM': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
-    { name: "Add Domain", href: "/domains/add", icon: MdOutlineAddCircleOutline },
+    { name: "Add Domain", href: "/list/projects", icon: MdOutlineAddCircleOutline },
     { name: "Renew Domain", href: "/domains/renew", icon: MdOutlineAutorenew },
     { name: "Transfer/Delete Domain", href: "/domains/transfer-delete", icon: MdOutlineSwapHoriz },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
@@ -136,16 +136,16 @@ const navMap = {
 };
 
 function Navbar() {
-  const role = getUserRole.role;
+  const role = getUserRole.role || "DRM";
   console.log("ROLE",role)
-  const navItems = navMap[role] || navMap.DRM;
+  const navItems = navMap[role] || navMap.DRM || [];
 
   const baseStyle =
     "flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900";
   const activeStyle = "bg-blue-50 text-blue-700 border-l-4 border-blue-500";
 
   return (
-    <nav id="main-nav" className="bg-white shadow-sm border-b border-gray-200">
+    <nav id="main-nav" className="bg-gray-100 border-1 border-gray-100">
       <div className="container mx-auto px-4">
         <div className="flex justify-center space-x-1 sm:space-x-4 overflow-x-auto py-1">
           {navItems.map((item) => (
