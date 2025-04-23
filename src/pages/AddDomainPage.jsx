@@ -127,6 +127,7 @@ import { API_BASE_URL } from "../config/env.config";
 import { authTokenState, isAuthenticatedState } from "../recoil/atoms/authState";
 import fetchUser from "../utils/fetchUser";
 import { useRecoilValue } from "recoil";
+import { notifyError, notifySuccess } from "../utils/toastUtils";
 
 function AddDomainPage() {
   const { search } = useLocation();
@@ -306,10 +307,16 @@ function AddDomainPage() {
         }
       })
 
-      navigate('/dashboard')
+      notifySuccess('Form submitted successfully')
+      setTimeout(() => {
+        navigate('/dashboard')
+        
+      }, 2000);
+    
       
     } catch (error) {
       console.log("EROROR",error)
+      notifyError('Error occured while submitting')
       throw new Error(error)
       
     }

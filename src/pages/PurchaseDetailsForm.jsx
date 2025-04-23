@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import MainLayout from '../layouts/MainLayout';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { authTokenState } from '../recoil/atoms/authState';
 import fetchUser from '../utils/fetchUser';
+import { API_BASE_URL } from '../config/env.config';
 
 function PurchaseDetailsForm() {
 
@@ -12,6 +13,7 @@ function PurchaseDetailsForm() {
     const webmasterId = fetchUser().id
 
     const authToken = useRecoilValue(authTokenState)
+    const navigate = useNavigate
 
 
     const [formData, setFormData] = useState({
@@ -37,9 +39,10 @@ function PurchaseDetailsForm() {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
+                const [,base64Enc] = reader.result.split(',')
                 setFormData((prev) => ({
                     ...prev,
-                    proofOfWork: reader.result, // base64 string
+                    proofOfWork: base64Enc, // base64 string
                 }));
             };
             reader.readAsDataURL(file); // This reads file as base64
@@ -54,19 +57,27 @@ function PurchaseDetailsForm() {
             finalPeriod: formData.finalPeriod,
             dateOfPurchase: formData.dateOfPurchase,
             purchaseType: formData.purchaseType,
-            proofOfWorkBase64: formData.proofOfWork, // Base64 field
+            proofOfWorkBase64Encoded: formData.proofOfWork, // Base64 field
             domainId:domainId,
             webMasterId:webmasterId,
         };
 
+        const url = `${API_BASE_URL}/purchase/${formData.purchaseType === 'NEW_REGISTRATION'?
+            'registerDomain':'renewDomain'}`
         try {
-            const response = await axios.post('/api/domain-purchase', payload, {
+            const response = await axios.post(url, payload, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization':`Bearer ${authToken}`
                 },
             });
             alert('Purchase details submitted successfully!');
+            setTimeout(() => {
+                navigate('/dasboard')
+                
+            }, 1000);
+            
+            
         } catch (error) {
             console.error('Error submitting purchase details:', error);
             alert('Submission failed!');

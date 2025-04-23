@@ -5,11 +5,10 @@ import { RecoilRoot } from "recoil";
 import "react-toastify/dist/ReactToastify.css";
 // import { BrowserRouter } from 'react-router-dom';
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+
     
     <RecoilRoot>
       <App/>
     </RecoilRoot>
     
-  </React.StrictMode>,
 );

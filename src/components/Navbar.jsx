@@ -85,6 +85,7 @@ const navMap = {
     { name: "Transfer/Delete Domain", href: "/domains/transfer-delete", icon: MdOutlineSwapHoriz },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
     { name: "Reports", href: "/reports", icon: MdOutlineAssessment },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
   'HOD': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
@@ -94,24 +95,28 @@ const navMap = {
     { name: "Verify VAPT Renewal", href: "/view/vapt-renewals", icon: MdOutlineFactCheck },
     { name: "Verify Transfer Requests", href: "/domains/view/verify-transfer-requests", icon: MdOutlineFactCheck },
     { name: "Verify Renewal Requests", href: "/domains/hod/verify-renewal", icon: MdOutlineFactCheck },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
   'ARM': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
     { name: "Verify Domain Requests", href: "/domains/arm/verify-requests", icon: MdOutlineFactCheck },
     { name: "Verify Renewal Requests", href: "/domains/ed/verify-renewal", icon: MdOutlineFactCheck },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
   'ED': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
     { name: "Verify Domain Requests", href: "/domains/ed/verify-requests", icon: MdOutlineFactCheck },
     { name: "Verify Renewal Requests", href: "/domains/ed/verify-renewal", icon: MdOutlineFactCheck },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
   'NETOPS': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
     { name: "Verify Domain Requests", href: "/domains/netops/verify-requests", icon: MdOutlineFactCheck },
     { name: "Verify Renewal Requests", href: "/domains/netops/verify-renewal", icon: MdOutlineFactCheck },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
   'WEBMASTER': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
@@ -119,12 +124,14 @@ const navMap = {
     { name: "Verify Domain Requests", href: "/domains/webmaster/verify-requests", icon: MdOutlineFactCheck },
     { name: "Verify Renewal Requests", href: "/domains/webmaster/verify-renewal", icon: MdOutlineFactCheck },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
   'HODHPC': [
     { name: "My Dashboard", href: "/dashboard", icon: MdOutlineDashboard },
     { name: "Verify Domain Requests", href: "/domains/hodhpc/verify-requests", icon: MdOutlineFactCheck },
     { name: "Verify Renewal Requests", href: "/domains/hodhpc/verify-renewal", icon: MdOutlineFactCheck },
     { name: "View Domains", href: "/domains/view", icon: MdOutlineVisibility },
+    { name: "Logout", href: "/logout", icon: MdOutlineAssessment },
   ],
 };
 

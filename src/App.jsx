@@ -5,8 +5,9 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom"; // Import routing components
-import { ToastContainer } from "./utils/toastUtils";
+import { notifySuccess, ToastContainer } from "./utils/toastUtils";
 import ProtectedRoute from "./components/ProtectedRoute";
 // Styles
 import "./App.css"; // Your global styles if any
@@ -34,6 +35,8 @@ import VerifyVaptRenewalPage from "./pages/VerifyVaptRenewalPage";
 import VerifyTransferPage from "./pages/VerifyTransferPage";
 import DomainDetailViewPage from "./pages/DomainDetailViewPage";
 import PurchaseDetailsForm from "./pages/PurchaseDetailsForm";
+import { useResetRecoilState } from "recoil";
+import { authTokenState, isAuthenticatedState, userState } from "./recoil/atoms/authState";
 
 
 
@@ -47,6 +50,29 @@ const NotFoundPage = () => (
     </a>
   </div>
 );
+
+const LogoutPage = () => {
+
+  const resetStateAuthToken = useResetRecoilState(authTokenState)
+  const resetStateAuth = useResetRecoilState(isAuthenticatedState)
+  const resetUserState = useResetRecoilState(userState)
+  const navigate = useNavigate()
+
+
+
+
+  localStorage.clear()
+
+  resetStateAuth()
+  resetStateAuthToken()
+  resetUserState()
+  
+  notifySuccess('Successfully logged out')
+  setTimeout(() => {
+    navigate('/login')
+    
+  }, 1000);
+}
 
 function App() {
   return (
@@ -246,7 +272,7 @@ function App() {
         <Route path="/domains/ed/verify-requests" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/ED/domain-verify-requests'}
-              verifyPathPrefix={'/detailed-domain'} title="ED-Domain Verification"
+              verifyPathPrefix={'/detailed-domain/ed'} title="ED-Domain Verification"
               useFor={"domain"} />
           </ProtectedRoute>
 
@@ -275,7 +301,7 @@ function App() {
         <Route path="/domains/netops/verify-requests" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/NETOPS/domain-verify-requests'}
-              verifyPathPrefix={'/detailed-domain'} title="NETOPS-Domain Verification"
+              verifyPathPrefix={'/detailed-domain/netops'} title="NETOPS-Domain Verification"
               useFor={"domain"} />
           </ProtectedRoute>
 
@@ -303,7 +329,7 @@ function App() {
         <Route path="/domains/webmaster/verify-requests" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/WEBMASTER/domain-verify-requests'}
-              verifyPathPrefix={'/detailed-domain'} title="WEBMASTER-Domain Verification"
+              verifyPathPrefix={'/detailed-domain/webmaster'} title="WEBMASTER-Domain Verification"
               useFor={"domain"} />
           </ProtectedRoute>
 
@@ -352,7 +378,7 @@ function App() {
         <Route path="/domains/hodhpc/verify-requests" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/HODHPC/domain-verify-requests'}
-              verifyPathPrefix={'/detailed-domain'} title="HODHPC-Domain Verification"
+              verifyPathPrefix={'/detailed-domain/hodhpc'} title="HODHPC-Domain Verification"
               useFor={"domain"} />
           </ProtectedRoute>
 
@@ -389,7 +415,10 @@ function App() {
         {/* e.g., Renew, Transfer/Delete List, Reports, Assigned Projects, Verify Requests */}
 
         {/* Catch-all 404 Route - Renders if no other route matches */}
-        <Route path="*" element={<NotFoundPage />} />
+
+        <Route path="/logout" element={<LogoutPage/>} />
+
+        <Route path="*" element={<NotFoundPage/>} />
       </Routes>
     </Router>
   );
