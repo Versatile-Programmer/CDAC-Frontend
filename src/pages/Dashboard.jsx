@@ -170,18 +170,7 @@ import {
   MdOutlineFactCheck,
 } from "react-icons/md";
 
-// Simulate getting user role from context/auth (replace with real logic)
-const getUserRole = () => {
-  const userLS = localStorage.getItem("user");
-  if (userLS === null) return "DRM";
-  try {
-    const userDetails = JSON.parse(userLS);
-    return userDetails.role || "DRM";
-  } catch (error) {
-    console.error(error);
-    return "DRM";
-  }
-};
+import { getUserRole } from "../utils/helper";
 
 const expiringCounts = {
   days90: 32,

@@ -571,7 +571,7 @@ import { useRecoilValue } from "recoil";
 import { authTokenState } from "../recoil/atoms/authState";
 import { API_BASE_URL } from "../config/env.config";
 import { notifyError, notifySuccess } from "../utils/toastUtils";
-
+import { getUserRole } from "../utils/helper";
 // Simulated API response conforming to your DTO (without the approverInfo section)
 const mockVerificationData = (domainId) => ({
   domainId: domainId,
@@ -644,6 +644,26 @@ const nextStatus = {
   // …etc
 };
 
+const roleBasedVerificationButton = (role)=>{
+   switch (role) {
+     case "DRM":
+       return "Verify and Forward to ARM";
+     case "ARM":
+       return "Verify and consent to be ARM";
+     case "HOD":
+       return "Verify and Forward to ED";
+     case "ED":
+       return "Verify and Forward to NetOps";
+     case "NETOPS":
+       return "Verify and Forward to Webmaster";
+     case "WEBMASTER":
+       return "Verify and Forward to HodHpcI&E";
+     case "HODHPC":
+       return "Recommend for purchase";
+     default:
+       break;
+   }
+}
 
 function GenericDomainDetailPage({ verifier, reason }) {
   const authToken = useRecoilValue(authTokenState);
@@ -659,7 +679,7 @@ function GenericDomainDetailPage({ verifier, reason }) {
     domainNameId: domainId,
     remarks: "",
   });
-
+  const role = getUserRole();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -799,6 +819,13 @@ function GenericDomainDetailPage({ verifier, reason }) {
             ← Back to List
           </Link>
         </div>
+        {/* Section 7: Domain Status Track Bar */}
+        <section className="bg-white p-6 rounded-lg shadow border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <MdTimeline className="mr-2 text-green-500" /> Status Workflow
+          </h3>
+          <DomainStatusMap domainStatus={verificationStatus} />
+        </section>
 
         {/* Section 1: Domain Details */}
         <section className="bg-white p-6 rounded-lg shadow border border-gray-200">
@@ -824,16 +851,19 @@ function GenericDomainDetailPage({ verifier, reason }) {
             </p>
 
             {reason === "renewal" && (
-              <p><strong>Reason for Renewal:</strong> {verificationData.reason}</p>
+              <p>
+                <strong>Reason for Renewal:</strong> {verificationData.reason}
+              </p>
             )}
 
-
-            {reason === "renewal" && verificationData.domainRenewalApprovalProofByHod ? (
+            {reason === "renewal" &&
+            verificationData.domainRenewalApprovalProofByHod ? (
               <button
                 onClick={handleDownloadRenewalHodApprovalProof}
                 className="flex items-center mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
               >
-                <MdFileDownload className="mr-2" size={20} /> Download Hod Approval Proof
+                <MdFileDownload className="mr-2" size={20} /> Download Hod
+                Approval Proof
               </button>
             ) : (
               <p className="text-gray-500 mt-2">No approval proof available.</p>
@@ -852,8 +882,7 @@ function GenericDomainDetailPage({ verifier, reason }) {
           </h3>
           <div className="space-y-2 text-gray-800">
             <p>
-              <strong>Name:</strong>{" "}
-              {verificationData.drmInfo?.firstName}{" "}
+              <strong>Name:</strong> {verificationData.drmInfo?.firstName}{" "}
               {verificationData.drmInfo?.lastName}
             </p>
             <p>
@@ -870,11 +899,12 @@ function GenericDomainDetailPage({ verifier, reason }) {
               {verificationData.drmInfo?.groupId})
             </p>
             <p>
-              <strong>Centre:</strong> {verificationData.drmInfo?.centreName} (ID:{" "}
-              {verificationData.drmInfo?.centreId})
+              <strong>Centre:</strong> {verificationData.drmInfo?.centreName}{" "}
+              (ID: {verificationData.drmInfo?.centreId})
             </p>
             <p>
-              <strong>Designation:</strong> {verificationData.drmInfo?.designation}
+              <strong>Designation:</strong>{" "}
+              {verificationData.drmInfo?.designation}
             </p>
             <p>
               <strong>Employee No.:</strong> {verificationData.drmInfo?.empNo}
@@ -889,8 +919,7 @@ function GenericDomainDetailPage({ verifier, reason }) {
           </h3>
           <div className="space-y-2 text-gray-800">
             <p>
-              <strong>Name:</strong>{" "}
-              {verificationData.armInfo?.firstName}{" "}
+              <strong>Name:</strong> {verificationData.armInfo?.firstName}{" "}
               {verificationData.armInfo?.lastName}
             </p>
             <p>
@@ -907,11 +936,12 @@ function GenericDomainDetailPage({ verifier, reason }) {
               {verificationData.armInfo?.groupId})
             </p>
             <p>
-              <strong>Centre:</strong> {verificationData.armInfo?.centreName} (ID:{" "}
-              {verificationData.armInfo?.centreId})
+              <strong>Centre:</strong> {verificationData.armInfo?.centreName}{" "}
+              (ID: {verificationData.armInfo?.centreId})
             </p>
             <p>
-              <strong>Designation:</strong> {verificationData.armInfo?.designation}
+              <strong>Designation:</strong>{" "}
+              {verificationData.armInfo?.designation}
             </p>
             <p>
               <strong>Employee No.:</strong> {verificationData.armInfo?.empNo}
@@ -967,7 +997,8 @@ function GenericDomainDetailPage({ verifier, reason }) {
                 onClick={handleDownloadApprovalProof}
                 className="flex items-center mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
               >
-                <MdFileDownload className="mr-2" size={20} /> Download Approval Proof
+                <MdFileDownload className="mr-2" size={20} /> Download Approval
+                Proof
               </button>
             ) : (
               <p className="text-gray-500 mt-2">No approval proof available.</p>
@@ -992,14 +1023,6 @@ function GenericDomainDetailPage({ verifier, reason }) {
           </div>
         </section>
 
-        {/* Section 7: Domain Status Track Bar */}
-        <section className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-            <MdTimeline className="mr-2 text-green-500" /> Status Workflow
-          </h3>
-          <DomainStatusMap domainStatus={verificationStatus} />
-        </section>
-
         {/* Section 8: HOD Remarks & Send Back to DRM */}
         <section className="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-700 mb-4">
@@ -1019,7 +1042,8 @@ function GenericDomainDetailPage({ verifier, reason }) {
               onClick={handleVerify}
               className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
-              <MdVerified className="mr-2" size={20} /> Verify Domain
+              <MdVerified className="mr-2" size={20} />{" "}
+              {roleBasedVerificationButton(role)}
             </button>
             <button
               onClick={handleSendBackToDrm}
