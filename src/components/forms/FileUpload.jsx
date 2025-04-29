@@ -26,20 +26,18 @@
 // export default FileUpload;
 // src/components/forms/FileUpload.jsx
 import React from "react";
+import { BsCloudDownload } from "react-icons/bs";             // 1) import whatever icon you want
 
 const FileUpload = ({ label, id, name, onUpload, isRequired = false }) => {
   const handleChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type if needed
       if (file.type !== "application/pdf" && !file.type.startsWith("image/")) {
         alert("Please upload a valid PDF or image file.");
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        // reader.result is like "data:<mime-type>;base64,XXXX..."
-        // We split by comma to get only the Base64 string.
         const base64String = reader.result.split(",")[1];
         onUpload(base64String);
       };
@@ -62,6 +60,11 @@ const FileUpload = ({ label, id, name, onUpload, isRequired = false }) => {
       />
     </div>
   );
+};
+
+// 2) Attach an `Icon` property to your component
+FileUpload.Icon = function Icon(props) {
+  return <BsCloudDownload {...props} />;
 };
 
 export default FileUpload;

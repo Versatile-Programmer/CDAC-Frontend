@@ -96,11 +96,11 @@ function IpInfoRenewalSection({ ipDetails, updateDomainRenewalRequest }) {
           name="serverHardeningStatus"
           isRequired={true}
           options={[
-            { value: "YES", label: "Yes" },
-            { value: "NO", label: "No" },
-            { value: "NA", label: "N/a" },
+            { value: true, label: "Yes" },
+            { value: false, label: "No" },
+            // { value: "NA", label: "N/a" },
           ]}
-          selectedValue={ipDetails.serverHardeningStatus || ""}
+          selectedValue={ipDetails.serverHardeningStatus}
           onChange={onChangeHandlerIp}
         />
       </div>

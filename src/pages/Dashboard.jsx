@@ -217,7 +217,7 @@ function DashboardPage() {
       { title: "Assign DRM/Projects", IconComponent: MdOutlinePlaylistAdd, linkTo: "/projects/assign" },
       { title: "Assigned Projects", IconComponent: MdWorkHistory, linkTo: "/projects/assigned" },
       { title: "Verify Domain Name Requests", IconComponent: MdOutlineFactCheck, linkTo: "/domains/hod/verify-requests" },
-      { title: "Verify VAPT Renewal Requests", IconComponent: MdOutlineFactCheck, linkTo: "/view/vapt-renewals" },
+      // { title: "Verify VAPT Renewal Requests", IconComponent: MdOutlineFactCheck, linkTo: "/view/vapt-renewals" },
       { title: "Verify Transfer Requests", IconComponent: MdOutlineFactCheck, linkTo: "/domains/view/verify-transfer-requests" },
       { title: "Verify Domain Renewal Requests", IconComponent: MdOutlineFactCheck, linkTo: "/domains/hod/verify-renewal" },
     ],
@@ -260,7 +260,9 @@ function DashboardPage() {
         <section>
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Expiring Domains</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {daysList.map((days) => (
+            {daysList.map((days) => {
+                  console.log("days",days)
+              return (
               <ExpiringDomainCard
                 key={days}
                 days={days}
@@ -268,7 +270,9 @@ function DashboardPage() {
                 colorTheme={getThemeForDays(String(days))}
                 linkTo={`/domains/expiring/${days}`}
               />
-            ))}
+            )
+          }
+            )}
           </div>
         </section>
 

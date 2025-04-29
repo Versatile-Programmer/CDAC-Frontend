@@ -58,12 +58,12 @@ export default function VerifyTransferPage() {
 
         //CLEARIFY FROM HANSRAJ ABOUT THE TRANSFER PAYLOAD
       await axios.put(
-        `${API_BASE_URL}/transfers/${transferId}/approve`,
+        `${API_BASE_URL}/api/transfers/${transferId}/approve`,
         { transferId, remarks },
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
       toast.success("Transfer approved successfully.");
-      navigate("/transfers/pending");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       toast.error("Failed to approve transfer.");
@@ -89,16 +89,32 @@ export default function VerifyTransferPage() {
 
   const handleDownloadProof = () => {
     if (!transferData?.prf_upload) return;
-    const blob = new Blob([transferData.prf_upload], { type: "application/pdf" });
+  
+    // 1. Decode Base64 to raw binary string
+    const base64 = transferData.prf_upload;
+    const binaryString = atob(base64);                                 // :contentReference[oaicite:0]{index=0}
+  
+    // 2. Create an array of byte values
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+  
+    // 3. Build the Blob
+    const blob = new Blob([bytes], { type: "application/pdf" });        // :contentReference[oaicite:1]{index=1}
+  
+    // 4. Generate a download link and click it
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = `transfer-proof-${transferId}.pdf`;
     document.body.appendChild(link);
-    link.click();
+    link.click();                                                      // :contentReference[oaicite:2]{index=2}
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+  
 
   if (!transferData) {
     return (
@@ -174,12 +190,12 @@ export default function VerifyTransferPage() {
             >
               Approve Transfer
             </button>
-            <button
+            {/* <button
               onClick={handleSendBack}
               className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               Send Back to DRM
-            </button>
+            </button> */}
           </div>
         </section>
       </div>

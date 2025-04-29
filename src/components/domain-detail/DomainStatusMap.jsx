@@ -7,13 +7,13 @@ function DomainStatusMap({ domainStatus }) {
   // Define the steps in your workflow IN ORDER
   const steps = [
     "Application Submitted",
-    "ARM Forwarded",
+    "ARM",
     "HOD Verified",
     "ED Approved",
     "NetOps Verified",
     "Webmaster Verified",
     "HPC Recommended",
-    "Purchased",
+    "Purchased by Webmaster",
     "Active",
     // Add other steps as needed
   ];

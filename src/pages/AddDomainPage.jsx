@@ -1,112 +1,4 @@
-// // src/pages/AddDomainPage.jsx
-// import React, { useEffect } from "react";
-// import MainLayout from "../layouts/MainLayout";
-// import FormSection from "../components/forms/FormSection";
 
-// // Import section components (we'll create these next)
-// import ProjectInfoSection from "../components/domain-form/ProjectInfoSection";
-// import DrmInfoSection from "../components/domain-form/DrmInfoSection";
-// import RegistrationInfoSection from "../components/domain-form/RegistrationInfoSection";
-// import IpInfoSection from "../components/domain-form/IpInfoSection";
-// import VaptInfoSection from "../components/domain-form/VaptInfoSection";
-// import ComplianceInfoSection from "../components/domain-form/ComplianceInfoSection";
-// import MouInfoSection from "../components/domain-form/MouInfoSection";
-// import ArmInfoSection from "../components/domain-form/ArmInfoSection";
-// import TermsAndConditionsSection from "../components/domain-form/TermsAndConditionsSection";
-// import { useLocation } from "react-router-dom";
-// function AddDomainPage() {
-
-//   const { search } = useLocation();
-//   const queryParams = new URLSearchParams(search);
-//   const projectId = queryParams.get("projectId");
-
-//   const [projectDetails,setProjectDetails] = useState({
-//       hodName:"",
-//       projectName:"",
-//       projectRemarks:""
-//     })
-
-//     useEffect
-
-
-
-
-
-
-
-//   // Dummy handler for the final form submit
-//   const handleFormSubmit = (e) => {
-//     e.preventDefault();
-
-//   };
-
-//   return (
-//     <MainLayout>
-//       <div className="max-w-4xl mx-auto">
-//         {" "}
-//         {/* Constrain width for better readability */}
-//         <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center border-b pb-2">
-//           Domain Name Registration Form
-//         </h2>
-//         {/* We will use a single <form> element wrapping all sections */}
-//         <form onSubmit={handleFormSubmit}>
-//           {/* Use FormSection for each part */}
-//           <FormSection title="Project Information" initiallyOpen={true}>
-//             <ProjectInfoSection /> {/* Content goes here */}
-//           </FormSection>
-
-//           <FormSection title="DRM Information" initiallyOpen={true}>
-//             <DrmInfoSection />
-//           </FormSection>
-
-//           <FormSection title="Registration Information" initiallyOpen={true}>
-//             <RegistrationInfoSection />
-//           </FormSection>
-
-//           <FormSection title="IP Information" initiallyOpen={true}>
-//             <IpInfoSection />
-//           </FormSection>
-
-//           <FormSection title="VAPT Information" initiallyOpen={true}>
-//             <VaptInfoSection />
-//           </FormSection>
-
-//           <FormSection
-//             title="Compliance (GIGW/ICT Accessibility)"
-//             initiallyOpen={true}
-//           >
-//             <ComplianceInfoSection />
-//           </FormSection>
-
-//           <FormSection title="Memorandum of Understanding" initiallyOpen={true}>
-//             <MouInfoSection />
-//           </FormSection>
-
-//           <FormSection title="ARM Information" initiallyOpen={true}>
-//             <ArmInfoSection />
-//           </FormSection>
-
-//           <FormSection title="Terms and Conditions" initiallyOpen={true}>
-//             <TermsAndConditionsSection />
-//           </FormSection>
-
-//           {/* Final Submit Button - Placed outside the last section */}
-//           <div className="mt-8 flex justify-end">
-//             <button
-//               type="submit"
-//               className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-300 ease-in-out"
-//             >
-//               Submit Form
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//     </MainLayout>
-//   );
-// }
-
-// export default AddDomainPage;
-// src/pages/AddDomainPage.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -257,7 +149,7 @@ function AddDomainPage() {
           hodHpcEmpNo: response.data.responsibleOfficials.hod_hpc_iande_emp_no
         });
 
-      
+
         // And the fetched `drm` object into your state
         updateDomainRequest("drmInfo", {
           fname: response.data.drm.drm_fname,
@@ -293,32 +185,34 @@ function AddDomainPage() {
     console.log("PAYLOAD FOR DOMAIN REGISTRATION", domainRequest)
 
     //CONVERTING LOCALDATE TO LOCALDATE TIME
-    const date = new Date(domainRequest.vaptCompliance.certificateExpiryDate); // or your selected date
-    const isoDateTime = date.toISOString().slice(0, 19); // "2025-04-29T00:00:00"
+    if (domainRequest.vaptCompliance.compliant) {
+      const date = new Date(domainRequest.vaptCompliance.certificateExpiryDate); // or your selected date
+      const isoDateTime = date.toISOString().slice(0, 19); // "2025-04-29T00:00:00"
 
-    domainRequest.vaptCompliance.certificateExpiryDate = isoDateTime
+      domainRequest.vaptCompliance.certificateExpiryDate = isoDateTime
+    }
 
     try {
 
-      const response = await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`,domainRequest,{
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':`Bearer ${isAuthenticated}`
-        }
-      })
+      // const response = await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`,domainRequest,{
+      //   headers:{
+      //     'Content-Type':'application/json',
+      //     'Authorization':`Bearer ${isAuthenticated}`
+      //   }
+      // })
 
       notifySuccess('Form submitted successfully')
-      setTimeout(() => {
-        navigate('/dashboard')
-        
-      }, 2000);
-    
-      
+      // setTimeout(() => {
+      //   navigate('/dashboard')
+
+      // }, 2000);
+
+
     } catch (error) {
-      console.log("EROROR",error)
+      console.log("EROROR", error)
       notifyError('Error occured while submitting')
       throw new Error(error)
-      
+
     }
 
 
@@ -389,7 +283,7 @@ function AddDomainPage() {
               type="submit"
               className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-300 ease-in-out"
             >
-              Submit Form
+              Submit Form to Hod
             </button>
           </div>
         </form>
@@ -399,4 +293,9 @@ function AddDomainPage() {
 }
 
 export default AddDomainPage;
+
+
+
+
+
 
