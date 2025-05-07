@@ -60,6 +60,7 @@
 // export default Navbar;
 import React from "react";
 import { NavLink } from "react-router-dom"; // Use NavLink for active styling
+import NotificationBell from "./notifications/NotificationBell"
 import {
   MdOutlineDashboard,
   MdOutlineAddCircleOutline,
@@ -160,6 +161,10 @@ function Navbar() {
               <span className="whitespace-nowrap">{item.name}</span>
             </NavLink>
           ))}
+          <div className="ml-4 flex-shrink-0">
+             {/* Added margin-left and prevent shrinking */}
+             <NotificationBell />
+          </div>
         </div>
       </div>
     </nav>

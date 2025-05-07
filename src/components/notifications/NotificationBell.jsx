@@ -209,8 +209,3 @@ export default NotificationBell;
 
 // Add this line to the Navbar component after Navlink and it bracket lies
 
-//  <div className="ml-4 flex-shrink-0">
-//             {" "}
-//             {/* Added margin-left and prevent shrinking */}
-//             <NotificationBell />
-//           </div>
