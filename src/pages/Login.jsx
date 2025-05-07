@@ -34,7 +34,7 @@ function LoginPage() {
       const timeout = setTimeout(() => {
         // After delay, navigate to dashboard
         navigate('/dashboard', { replace: true });
-      }, 5000);
+      }, 1000);
       return () => clearTimeout(timeout);
     }
   }, [isAuthenticated, navigate]);

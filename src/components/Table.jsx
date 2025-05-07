@@ -79,6 +79,10 @@
 // }
 
 // export default Table;
+
+
+
+
 import React from "react";
 
 function Table({
@@ -101,7 +105,8 @@ function Table({
             <tr>
               {columns.map((col) => (
                 <th
-                  key={col.accessor}
+                  // Use header as key if accessor might not be unique or present for render-only columns
+                  key={col.header || col.accessor}
                   scope="col"
                   className={`px-6 py-3 text-left text-xs font-bold ${headerText} uppercase tracking-wider ${border} border-b`}
                 >
@@ -110,7 +115,6 @@ function Table({
               ))}
             </tr>
           </thead>
-
           <tbody className="bg-white divide-y divide-gray-200">
             {data.length === 0 ? (
               <tr>
@@ -124,19 +128,24 @@ function Table({
             ) : (
               data.map((row, rowIndex) => (
                 <tr
-                  key={rowIndex}
+                  key={rowIndex} // Using index is okay if rows don't have stable IDs or aren't reordered
                   className={rowIndex % 2 !== 0 ? rowBg : "bg-white"}
                 >
                   {columns.map((col) => (
                     <td
-                      key={`${rowIndex}-${col.accessor}`}
+                      // Use header as key if accessor might not be unique or present
+                      key={`${rowIndex}-${col.header || col.accessor}`}
                       className="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
                     >
-                      {col.render
-                        ? col.render(row)
-                        : col.accessor
-                            .split('.')
-                            .reduce((obj, key) => obj?.[key], row) ?? '---'}
+                      {/* *** MODIFICATION START *** */}
+                      {/* Check if a custom render function exists */}
+                      {typeof col.render === 'function'
+                        ? col.render(row) // If yes, call it with the current row data
+                        : col.accessor // If no, proceed with the accessor logic
+                            .split(".")
+                            .reduce((obj, key) => obj?.[key], row) ?? "---"
+                      }
+                      {/* *** MODIFICATION END *** */}
                     </td>
                   ))}
                 </tr>
@@ -150,4 +159,3 @@ function Table({
 }
 
 export default Table;
-

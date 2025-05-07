@@ -52,5 +52,7 @@ export const expiringDomainThemes = {
 
 // Function to get theme based on days parameter
 export const getThemeForDays = (days) => {
-    return expiringDomainThemes[days] || expiringDomainThemes.default;
+    const temp = expiringDomainThemes[days] || expiringDomainThemes.default
+    console.log("temp",temp)
+    return temp;
 };

@@ -314,7 +314,7 @@
 // export default DomainRenewalPage;
 // src/pages/DomainRenewalPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import MainLayout from "../layouts/MainLayout";
 import FormSection from "../components/forms/FormSection";
@@ -330,15 +330,18 @@ import MouInfoRenewalSection from "./MouInfoRenewalSection";
 import TermsAndConditionsSection from "../components/domain-form/TermsAndConditionsSection";
 import { API_BASE_URL } from "../config/env.config";
 import { useRecoilValue } from "recoil";
-import { isAuthenticatedState } from "../recoil/atoms/authState";
+import { authTokenState, isAuthenticatedState } from "../recoil/atoms/authState";
 import fetchUser from "../utils/fetchUser";
+import FileUpload from "../components/forms/FileUpload";
+import { notifySuccess } from "../utils/toastUtils";
 
 
 function DomainRenewalPage() {
     const { dmId } = useParams();
 
     const user = fetchUser();
-    const isAuthenticated = useRecoilValue(isAuthenticatedState);
+    const isAuthenticated = useRecoilValue(authTokenState);
+    const navigate = useNavigate()
 
     // Full state representing the domain renewal request
     const [domainRenewalRequest, setDomainRenewalRequest] = useState({
@@ -412,16 +415,17 @@ function DomainRenewalPage() {
     };
 
     // File upload handler for the approval proof
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.type === "application/pdf") {
+    const handleFileChange = (fileValue) => {
+        // const file = e.target.files[0];
+        // if (file && file.type === "application/pdf") {
             setDomainRenewalRequest((prev) => ({
                 ...prev,
-                domainRenewalApprovalProofByHod: file,
+                domainRenewalApprovalProofByHod: fileValue,
             }));
-        } else {
-            alert("Please upload a valid PDF file.");
-        }
+        // } else {
+        //     alert("Please upload a valid PDF file.");
+        // }
+
     };
 
     // useEffect to fetch domain renewal data and prepopulate the form
@@ -488,11 +492,11 @@ function DomainRenewalPage() {
                         ipExpiryDate: data.ipDetails.ipExpiryDate || "",
                     },
                     vaptCompliance: {
-                        vaptCompliance: data.vaptCompliance.vaptCompliant,
-                        certifyingAuthority: data.vaptCompliance.vaptCertifyingAuthority || "",
-                        certificateExpiryDate: data.vaptCompliance.vaptCertificateExpiryDate || "",
-                        approvalProof: data.vaptCompliance.approvalProofVaptCompliant,
-                        remarks: data.vaptCompliance.vaptRemarks || "",
+                        vaptCompliant: data.vaptCompliance.vaptCompliant,
+                        vaptCertifyingAuthority: data.vaptCompliance.vaptCertifyingAuthority || "",
+                        vaptCertificateExpiryDate: data.vaptCompliance.vaptCertificateExpiryDate || "",
+                        approvalProofVaptCompliant: data.vaptCompliance.approvalProofVaptCompliant,
+                        vaptRemarks: data.vaptCompliance.vaptRemarks || "",
                     },
                     complianceStatus: data.complianceStatus,
                 }));
@@ -518,6 +522,10 @@ function DomainRenewalPage() {
                     'Authorization':`Bearer ${isAuthenticated}`
                 }
             })
+            notifySuccess('Successfully submitted')
+            setTimeout(() => {
+                navigate('/dashboard')
+            }, 2000);
             console.log("response",response.data)
 
             
@@ -555,20 +563,26 @@ function DomainRenewalPage() {
 
                     {/* Add file upload for approval proof */}
                     <FormSection title="Approval Proof (HOD)" initiallyOpen={false}>
-                        <div className="mb-4">
-                            <label className="block font-medium mb-1">Upload Approval Proof</label>
-                            <input
+                        {/* <div className="mb-4"> */}
+                            {/* <label className="block font-medium mb-1">Upload Approval Proof</label> */}
+                            {/* <input
                                 type="file"
                                 accept="application/pdf"
                                 onChange={handleFileChange}
                                 className="w-full border p-2 rounded"
-                            />
+                            /> */}
+                             <FileUpload
+                                          label="Upload Approval Proof Document"
+                                          id="prf_upload"
+                                          name="prf_upload"
+                                          onUpload={(fileData) => handleFileChange(fileData)}
+                                        />
                             {domainRenewalRequest.domainRenewalApprovalProofByHod && (
                                 <p className="mt-2 text-sm text-green-500">
                                     {domainRenewalRequest.domainRenewalApprovalProofByHod.name} uploaded.
                                 </p>
                             )}
-                        </div>
+                        {/* </div> */}
                     </FormSection>
 
 

@@ -10,7 +10,7 @@ import {
 import { notifySuccess, ToastContainer } from "./utils/toastUtils";
 import ProtectedRoute from "./components/ProtectedRoute";
 // Styles
-import "./App.css"; // Your global styles if any
+import "../src/App.css"; // Your global styles if any
 
 // --- Page Components ---
 import AssignDrmPage from "./pages/AssignDrmPage";
@@ -20,14 +20,12 @@ import ExpiringDomainsPage from "./pages/ExpiringDomainPage"; // Ensure filename
 import DrmProjectsPage from "./pages/ViewProjectsPage";
 import Login from "./pages/Login"; // Assuming Login is the LoginPage component
 import ViewDomainsPage from "./pages/ViewDomainsPage";
-import DomainDetailPage from "./pages/DomainDetailPage";
 import DashboardPage from "./pages/Dashboard";
 import RenewDomainsPage from "./pages/RenewDomainsPage";
 import DomainRenewalPage from "./pages/DomainRenewalPage";
 import TransferDeleteDomainsPage from "./pages/ViewTransferDelete";
 import ApplyTransferPage from "./pages/TransferPage";
 import HodAssignedProjectsPage from "./pages/HodAssignedDomains";
-import VerifyDomainRequestsPage from "./pages/GenericDomainVerificationPage";
 import GenericDomainVerificationPage from "./pages/GenericDomainVerificationPage";
 import GenericDomainDetailPage from "./pages/GenericDomainDetailPage";
 import ViewVaptRenewalsPage from "./pages/ViewVaptRenewalsPage";

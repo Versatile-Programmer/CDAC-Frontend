@@ -3,18 +3,18 @@
 // import RadioGroup from "../forms/RadioGroup";
 // import TextInput from "../forms/TextInput";
 
-// function VaptInfoRenewalSection({ domainRequest, updateDomainRequest }) {
+// function VaptInfoRenewalSection({ domainRequest, updateDomainRenewalRequest }) {
 //   const { vaptCompliance } = domainRequest;
 
 //   const onChangeHandlerVapt = (e) => {
 //     const { name, value, type, files } = e.target;
 //     if (type === "file") {
-//       updateDomainRequest("vaptCompliance", {
+//       updateDomainRenewalRequest("vaptCompliance", {
 //         ...vaptCompliance,
 //         [name]: files[0] || null,
 //       });
 //     } else {
-//       updateDomainRequest("vaptCompliance", {
+//       updateDomainRenewalRequest("vaptCompliance", {
 //         ...vaptCompliance,
 //         [name]: value,
 //       });
@@ -139,35 +139,56 @@ import TextInput from "../forms/TextInput";
 function VaptInfoRenewalSection({ vaptCompliance, updateDomainRenewalRequest }) {
   const onChangeHandlerVapt = (e) => {
     const { name, value, type, files } = e.target;
-    if (type === "file") {
+
+    if (name === 'vaptCompliant') {
+      // const isVaptCompliant = vaptCompliance.compliant === "YES"?true:(vaptCompliance.compliant === "NO"?false:'');
+
       updateDomainRenewalRequest("vaptCompliance", {
         ...vaptCompliance,
-        [name]: files[0] || null, // Handle file inputs
+        [name]: value === "true",
       });
+    }
+    else if (type === "file") {
+      const file = files[0]
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Enc = reader.result.split(",")[1];
+        console.log("BASE 64=",base64Enc)
+
+
+
+        updateDomainRenewalRequest("vaptCompliance", {
+          ...vaptCompliance,
+          [name]: base64Enc,
+        });
+      }
+      reader.readAsDataURL(file);
+
     } else {
       updateDomainRenewalRequest("vaptCompliance", {
         ...vaptCompliance,
-        [name]: value, // Handle text inputs
+        [name]: value,
       });
     }
   };
 
   // Determine compliance status based on the prepopulated value.
-  const isVaptCompliant = vaptCompliance.compliant === "YES";
-  const isVaptNotCompliant = vaptCompliance.compliant === "NO";
+  const isVaptCompliant = vaptCompliance.vaptCompliant === true;
+  const isVaptNotCompliant = vaptCompliance.vaptCompliant === false;
 
   return (
     <div className="space-y-4">
       <RadioGroup
         label="VAPT (Vulnerability Assessment & Penetration Testing) Compliant"
-        name="compliant"
+        name="vaptCompliant"
         isRequired={true}
         options={[
-          { value: "YES", label: "Yes" },
-          { value: "NO", label: "No" },
-          { value: "NA", label: "N/a" },
+          { value: true, label: "Yes" },
+          { value: false, label: "No" },
+          // { value: "NA", label: "N/a" },
         ]}
-        selectedValue={vaptCompliance.compliant || ""}
+        selectedValue={vaptCompliance.vaptCompliant}
         onChange={onChangeHandlerVapt}
       />
 
@@ -176,10 +197,10 @@ function VaptInfoRenewalSection({ vaptCompliance, updateDomainRenewalRequest }) 
           <TextInput
             label="VAPT Certifying Authority"
             id="vaptAuthority"
-            name="certifyingAuthority"
+            name="vaptCertifyingAuthority"
             isRequired={true}
             placeholder="Organisation Name"
-            value={vaptCompliance.certifyingAuthority || ""}
+            value={vaptCompliance.vaptCertifyingAuthority || ""}
             onChange={onChangeHandlerVapt}
           />
           <div>
@@ -192,9 +213,9 @@ function VaptInfoRenewalSection({ vaptCompliance, updateDomainRenewalRequest }) 
             <input
               type="date"
               id="vaptExpiryDate"
-              name="certificateExpiryDate"
+              name="vaptCertificateExpiryDate"
               required
-              value={vaptCompliance.certificateExpiryDate || ""}
+              value={vaptCompliance.vaptCertificateExpiryDate || ""}
               onChange={onChangeHandlerVapt}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
@@ -209,7 +230,7 @@ function VaptInfoRenewalSection({ vaptCompliance, updateDomainRenewalRequest }) 
             <input
               type="file"
               id="vaptReport"
-              name="approvalProof"
+              name="approvalProofVaptCompliant"
               required
               onChange={onChangeHandlerVapt}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
@@ -224,10 +245,10 @@ function VaptInfoRenewalSection({ vaptCompliance, updateDomainRenewalRequest }) 
             </label>
             <textarea
               id="vaptRemarks"
-              name="remarks"
+              name="vaptRemarks"
               rows="3"
               placeholder="Any remarks regarding VAPT..."
-              value={vaptCompliance.remarks || ""}
+              value={vaptCompliance.vaptRemarks || ""}
               onChange={onChangeHandlerVapt}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             ></textarea>
@@ -249,7 +270,7 @@ function VaptInfoRenewalSection({ vaptCompliance, updateDomainRenewalRequest }) 
           <input
             type="file"
             id="vaptExemptionCert"
-            name="approvalProof"
+            name="approvalProofVaptCompliant"
             required
             onChange={onChangeHandlerVapt}
             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
