@@ -179,7 +179,7 @@ function VaptInfoSection({ domainRequest, updateDomainRequest }) {
         // Ensure reader.result is a string before splitting
         const resultString = typeof reader.result === 'string' ? reader.result : '';
         const base64Enc = resultString.split(",")[1] || ''; // Get part after comma, fallback to empty
-        console.log("BASE 64=", base64Enc);
+        // console.log("BASE 64=", base64Enc);
 
         updateDomainRequest("vaptCompliance", {
           ...vaptCompliance,

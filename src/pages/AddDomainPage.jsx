@@ -194,18 +194,18 @@ function AddDomainPage() {
 
     try {
 
-      // const response = await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`,domainRequest,{
-      //   headers:{
-      //     'Content-Type':'application/json',
-      //     'Authorization':`Bearer ${isAuthenticated}`
-      //   }
-      // })
+      const response = await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`,domainRequest,{
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':`Bearer ${isAuthenticated}`
+        }
+      })
 
       notifySuccess('Form submitted successfully')
-      // setTimeout(() => {
-      //   navigate('/dashboard')
+      setTimeout(() => {
+        navigate('/dashboard')
 
-      // }, 2000);
+      }, 2000);
 
 
     } catch (error) {

@@ -696,7 +696,7 @@ export default function DomainDetailViewPage() {
                             // disabled={isLoading} // Not needed here
                             className="flex items-center px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors"
                             >
-                            <MdFileDownload className="mr-2" size={18} /> Download VAPT Approval Proof
+                            <MdFileDownload className="mr-2" size={18} /> Download VAPT Approval
                          </button>
                      </div>
                 )}

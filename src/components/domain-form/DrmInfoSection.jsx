@@ -466,8 +466,8 @@ function DrmInfoSection({
             name="serviceType" // Maps to domainDetails state
             isRequired={true}
             options={[
-              { value: "INTERNAL", label: "Internal (Intranet/Internal Users)" },
-              { value: "EXTERNAL", label: "External (Internet Facing)" },
+              { value: "INTERNAL", label: "Internal" },
+              { value: "EXTERNAL", label: "External" },
             ]}
             selectedValue={domainDetails.serviceType}
             onChange={onChangeHandlerDomain}
