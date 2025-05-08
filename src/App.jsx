@@ -64,11 +64,11 @@ const LogoutPage = () => {
   resetStateAuth()
   resetStateAuthToken()
   resetUserState()
-  
+
   notifySuccess('Successfully logged out')
   setTimeout(() => {
     navigate('/login')
-    
+
   }, 1000);
 }
 
@@ -181,10 +181,17 @@ function App() {
 
         } />
 
+        <Route path="/detailed-domain/renewal/arm/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"arm"} reason={"renewal"} />
+          </ProtectedRoute>
+
+        } />
+
         <Route path="/domains/arm/verify-renewal" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/ARM'}
-              verifyPathPrefix={'/detailed-domain/arm'}
+              verifyPathPrefix={'/detailed-domain/renewal/arm'}
               title="ARM-Domain Renewal Verification"
               useFor={"domain"} />
           </ProtectedRoute>
@@ -223,10 +230,17 @@ function App() {
 
         } />
 
+        <Route path="/detailed-domain/renewal/hod/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"hod"} reason={"renewal"} />
+          </ProtectedRoute>
+
+        } />
+
         <Route path="/domains/hod/verify-renewal" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/HOD'}
-              verifyPathPrefix={'/detailed-domain/hod'}
+              verifyPathPrefix={'/detailed-domain/renewal/hod'}
               title="HOD-Domain Renewal Verification"
               useFor={"domain"} />
           </ProtectedRoute>
@@ -282,10 +296,16 @@ function App() {
           </ProtectedRoute>
         } />
 
+        <Route path="/detailed-domain/renewal/ed/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"ed"} reason={"renewal"} />
+          </ProtectedRoute>
+        } />
+
         <Route path="/domains/ed/verify-renewal" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/ED'}
-              verifyPathPrefix={'/detailed-domain/ed'}
+              verifyPathPrefix={'/detailed-domain/renewal/ed'}
               title="ED-Domain Renewal Verification"
               useFor={"domain"} />
           </ProtectedRoute>
@@ -311,10 +331,16 @@ function App() {
           </ProtectedRoute>
         } />
 
+        <Route path="/detailed-domain/renewal/netops/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"netops"} reason={"renewal"} />
+          </ProtectedRoute>
+        } />
+
         <Route path="/domains/netops/verify-renewal" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/NETOPS'}
-              verifyPathPrefix={'/detailed-domain/netops'}
+              verifyPathPrefix={'/detailed-domain/renewal/netops'}
               title="NETOPS-Domain Renewal Verification"
               useFor={"domain"} />
           </ProtectedRoute>
@@ -339,10 +365,16 @@ function App() {
           </ProtectedRoute>
         } />
 
+        <Route path="/detailed-domain/renewal/webmaster/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"webmaster"} reason={"renewal"} />
+          </ProtectedRoute>
+        } />
+
         <Route path="/domains/webmaster/verify-renewal" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/WEBMASTER'}
-              verifyPathPrefix={'/detailed-domain/webmaster'}
+              verifyPathPrefix={'/detailed-domain/renewal/webmaster'}
               title="WEBMASTER-Domain Renewal Verification"
               useFor={"domain"} />
           </ProtectedRoute>
@@ -388,10 +420,16 @@ function App() {
           </ProtectedRoute>
         } />
 
+        <Route path="/detailed-domain/renewal/hodhpc/:domainId" element={
+          <ProtectedRoute>
+            <GenericDomainDetailPage verifier={"hodhpc"} reason={"renewal"}/>
+          </ProtectedRoute>
+        } />
+
         <Route path="/domains/hodhpc/verify-renewal" element={
           <ProtectedRoute>
             <GenericDomainVerificationPage apiPath={'/domain/domain-renewal/view/HODHPC'}
-              verifyPathPrefix={'/detailed-domain/hodhpc'}
+              verifyPathPrefix={'/detailed-domain/renewal/hodhpc'}
               title="HODHPC-Domain Renewal Verification"
               useFor={"domain"} />
           </ProtectedRoute>
@@ -414,9 +452,9 @@ function App() {
 
         {/* Catch-all 404 Route - Renders if no other route matches */}
 
-        <Route path="/logout" element={<LogoutPage/>} />
+        <Route path="/logout" element={<LogoutPage />} />
 
-        <Route path="*" element={<NotFoundPage/>} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

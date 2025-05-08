@@ -396,6 +396,7 @@ function TransferRequestSection() {
         })
     } catch (error) {
         console.log(error)
+        toast.error(error.message)
         throw error
         
     }

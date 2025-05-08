@@ -63,7 +63,10 @@ export default function VerifyTransferPage() {
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
       toast.success("Transfer approved successfully.");
-      navigate("/dashboard");
+      setTimeout(() => {
+        navigate("/dashboard");
+        
+      }, 1000);
     } catch (err) {
       console.error(err);
       toast.error("Failed to approve transfer.");
