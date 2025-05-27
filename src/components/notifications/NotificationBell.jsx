@@ -2,58 +2,24 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MdNotificationsNone, MdNotifications } from "react-icons/md";
 import NotificationItem from "./NotificationItem"; // Import the item component
-// import { notifyError, notifySuccess } from "../../services/toastService"; // Corrected import path
-
-// --- Sample Dummy Data ---
-const sampleNotifications = [
-  {
-    id: "n1",
-    title: "Domain Action Required",
-    message: 'Please verify VAPT for "example.com".',
-    timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-  },
-  {
-    id: "n2",
-    title: "Renewal Reminder",
-    message: 'Domain "my-site.org" expires in 28 days. Consider renewal.',
-    timestamp: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
-  },
-  {
-    id: "n3",
-    message: 'Project "Omega" details updated by HOD.',
-    timestamp: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
-  },
-  {
-    id: "n4",
-    title: "Transfer Request",
-    message: 'DRM "Jane Doe" initiated transfer for "another-domain.net".',
-    timestamp: new Date(Date.now() - 86400000 * 7).toISOString(), // 7 days ago
-  },
-  {
-    id: "n5",
-    title: "Welcome!",
-    message: "Your account setup is complete.",
-    timestamp: new Date(Date.now() - 86400000 * 10).toISOString(), // 10 days ago
-  },
-];
-
-// --- Dummy API Functions (Keep placeholders for future integration) ---
-// const fetchUnreadCount = async () => { /* ... */ };
-// const fetchUnreadNotifications = async () => { /* ... */ };
-// const markNotificationAsRead = async (id) => { /* ... */ };
-// const markAllNotificationsAsRead = async () => { /* ... */ };
-// --- End Dummy API Functions ---
-
+import { authTokenState, userState } from "../../recoil/atoms/authState";
+import { notifyError, notifySuccess } from "../../utils/toastUtils"; // Corrected import path
+import { useRecoilValue } from "recoil";
+import {API_BASE_URL} from "../../config/env.config"
+import axios from "axios";
+import { WebhookEventType } from "../../../types/eventEnum";
 function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState(null);
   // Initialize state directly with dummy data
-  const [notifications, setNotifications] = useState(sampleNotifications);
-  const [unreadCount, setUnreadCount] = useState(sampleNotifications.length);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false); // Keep for potential future use
   const wrapperRef = useRef(null);
   const buttonRef = useRef(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-
+  const loggedInUser = useRecoilValue(userState);
+  const authToken = useRecoilValue(authTokenState);
   // --- Calculate Dropdown Position (using useCallback) ---
   const calculatePosition = useCallback(() => {
     if (buttonRef.current) {
@@ -71,16 +37,196 @@ function NotificationBell() {
     }
   }, []); // Empty dependency array
 
+  const transformBackendMessageArray = (msgArray) => {
+    // msgArray structure: [id, rawFullMessage, eventKey, timestamp]
+    if (!Array.isArray(msgArray) || msgArray.length < 4) {
+      console.warn(
+        "NotificationBell: Invalid message array format from backend:",
+        msgArray
+      );
+      const generatedId = `invalid-format-${Date.now()}-${Math.random()}`;
+      return {
+        id: generatedId,
+        title: "Error",
+        message: "Received malformed notification.",
+        timestamp: new Date().toISOString(),
+        is_read: false,
+      };
+    }
+
+    const notificationId = msgArray[0]; // e.g., 2 (the actual ID)
+    const rawFullMessage = msgArray[1]; // "Event: UNKNOWN_EVENT. Approved by HoD..."
+    const eventKey = msgArray[2]; // "UNKNOWN_EVENT"
+    const timestamp = msgArray[3]; // "2025-05-10T10:53:36.518Z"
+
+    let title = "Notification"; // Default title
+    let messageBody = rawFullMessage; // Default body
+
+    // Try to parse the message body from the rawFullMessage
+    const bodyMatch = rawFullMessage.match(/^Event: [A-Z_]+\.\s*(.*)$/);
+    if (bodyMatch && bodyMatch[1]) {
+      messageBody = bodyMatch[1].trim();
+    } else {
+      console.warn(
+        `NotificationBell: Could not parse body from raw message: "${rawFullMessage}" for ID ${notificationId}`
+      );
+    }
+
+    if (eventKey && WebhookEventType.hasOwnProperty(eventKey)) {
+      title = WebhookEventType[eventKey];
+    } else if (eventKey) {
+      console.warn(
+        `NotificationBell: Unknown event_key "${eventKey}" for ID ${notificationId}.`
+      );
+      title = eventKey
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase()); // Fallback
+    } else {
+      console.warn(
+        `NotificationBell: Missing eventKey in message array for ID ${notificationId}:`,
+        msgArray
+      );
+    }
+
+    return {
+      id: notificationId, // Use the ID from the backend! 
+      title: title,
+      message: messageBody,
+      timestamp: timestamp,
+      is_read: false, // Assuming all fetched notifications are initially unread
+    };
+  };
+
+
+  // --- API Call: Fetch Unread Notifications ---
+  // const loadNotifications = useCallback(async () => {
+  //   if (!loggedInUser?.id) {
+  //     console.warn(
+  //       "NotificationBell: No logged-in user emp_no found. Cannot fetch notifications."
+  //     );
+  //     setError(null);
+  //     setNotifications([]); // Clear notifications if no user
+  //     setUnreadCount(0);
+  //     return;
+  //   }
+  //   if (isLoading) return;
+
+  //   setIsLoading(true);
+  //   setError(null);
+  //   try {
+  //     // GET /api/v1/notifications (backend authMiddleware gets empNo from token)
+  //     // The backend will use the authenticated user's emp_no
+  //     const response = await axios.get(
+  //       `${API_BASE_URL}/api/v1/notifications/unread`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${authToken}`, // Use the token from Recoil
+  //         },
+  //       }
+  //     );
+  //     console.log("The Notifications are :",response.data);
+  //     setNotifications(response.data || []);
+  //     setUnreadCount(response.data?.filter((n) => !n.is_read).length || 0); // Calculate unread from fetched if backend doesn't provide count separately
+  //     console.log("Fetched notifications:", response.data);
+  //   } catch (err) {
+  //     console.error("Failed to fetch notifications:", err);
+  //     const msg =
+  //       axios.isAxiosError(err) && err.response?.data?.message
+  //         ? err.response.data.message
+  //         : err.message || "Could not load notifications.";
+  //     setError(msg);
+  //     notifyError(msg);
+  //     setNotifications([]);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, [loggedInUser, authToken]);
+
+  const loadNotifications = useCallback(async () => {
+    if (!loggedInUser?.id) {
+      console.warn(
+        "NotificationBell: No logged-in user. Cannot fetch notifications."
+      );
+      setNotifications([]);
+      setUnreadCount(0);
+      setError(null);
+      return;
+    }
+    if (isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/v1/notifications/unread`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+
+      console.log("Raw backend response:", response.data);
+      const backendData = response.data; // Expected: { messages: [ [id, msg, key, ts] ], unreadCount: X }
+
+      if (backendData && Array.isArray(backendData.messages)) {
+        const transformedNotifications = backendData.messages
+          .map(transformBackendMessageArray)
+          .filter(Boolean); // Filter out any nulls if transformBackendMessageArray returns null for invalid data
+        setNotifications(transformedNotifications);
+        setUnreadCount(
+          backendData.unreadCount !== undefined
+            ? backendData.unreadCount
+            : transformedNotifications.filter((n) => !n.is_read).length
+        );
+        console.log("Transformed notifications:", transformedNotifications);
+      } else {
+        console.warn(
+          "NotificationBell: Malformed notification data from backend.",
+          backendData
+        );
+        setNotifications([]);
+        setUnreadCount(0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+      const msg =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : err.message || "Could not load notifications.";
+      setError(msg);
+      notifyError(`Fetch error: ${msg}`);
+      setNotifications([]);
+      setUnreadCount(0);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loggedInUser, authToken]);
+
+
   // --- Toggle Dropdown ---
   const handleToggle = () => {
     const willOpen = !isOpen;
     setIsOpen(willOpen);
     if (willOpen) {
       calculatePosition(); // Calculate position when opening
-      // No API call needed here for dummy data
+    }
+    if (!willOpen) {
+      setError(null); // Clear error message when closing - THIS IS CORRECT
     }
   };
-
+  // useEffect(() => {
+  //   if (!isOpen) return;
+  //   const interval = setInterval(loadNotifications, 30000); // 30s
+  //   return () => clearInterval(interval);
+  // }, [isOpen, loadNotifications]);
+  useEffect(() => {
+    let isMounted = true;
+    if (loggedInUser?.id && authToken && isOpen) {
+      loadNotifications().then(() => {
+        if (!isMounted) return;
+      });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [loggedInUser, authToken, isOpen, loadNotifications]);
   // --- Update position on Resize/Scroll ---
   useEffect(() => {
     if (!isOpen) return;
@@ -94,25 +240,101 @@ function NotificationBell() {
   }, [isOpen, calculatePosition]);
 
   // --- Simulate Marking Single Notification As Read ---
-  const handleMarkRead = async (id) => {
-    console.log("Simulating Mark as read:", id);
-    // Optimistically update UI state
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    setUnreadCount((prev) => Math.max(0, prev - 1));
-    notifySuccess("Notification marked as read.");
-    // Placeholder: await markNotificationAsRead(id); // Call real API later
+  // const handleMarkRead = async (id) => {
+  //   console.log("Simulating Mark as read:", id);
+  //   // Optimistically update UI state
+  //   setNotifications((prev) => prev.filter((n) => n.id !== id));
+  //   setUnreadCount((prev) => Math.max(0, prev - 1));
+  //   notifySuccess("Notification marked as read.");
+  //   // Placeholder: await markNotificationAsRead(id); // Call real API later
+  // };
+
+  const handleMarkRead = async (notificationId) => {
+    if (!loggedInUser?.id || !authToken) return; // Check token
+    console.log("Marking as read:", notificationId);
+    const originalNotifications = [...notifications];
+    try {
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.notification_id === notificationId ? { ...n, is_read: true } : n
+        )
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+
+      await axios.patch(
+        `${API_BASE_URL}/api/v1/notifications/${notificationId}/read`,
+        {}, // Empty body for PATCH if no data needed, or send { empNo: loggedInUser.id } if backend requires it
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`, // *** ADDED TOKEN HERE ***
+          },
+        }
+      );
+      notifySuccess("Notification marked as read.");
+    } catch (err) {
+      console.error(
+        `Failed to mark notification ${notificationId} as read:`,
+        err
+      );
+      setNotifications(originalNotifications); // Revert
+      setUnreadCount(originalNotifications.filter((n) => !n.is_read).length);
+      notifyError(
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Failed to update notification status."
+      );
+    }
   };
 
   // --- Simulate Marking All As Read ---
+  // const handleMarkAllRead = async () => {
+  //   if (notifications.length === 0) return;
+  //   console.log("Simulating Mark all as read...");
+  //   // Optimistically update UI state
+  //   const currentCount = notifications.length;
+  //   setNotifications([]);
+  //   setUnreadCount(0);
+  //   notifySuccess(`${currentCount} notification(s) marked as read.`);
+  //   // Placeholder: await markAllNotificationsAsRead(); // Call real API later
+  // };
+
+  // --- API Call: Mark All As Read ---
   const handleMarkAllRead = async () => {
-    if (notifications.length === 0) return;
-    console.log("Simulating Mark all as read...");
-    // Optimistically update UI state
-    const currentCount = notifications.length;
-    setNotifications([]);
-    setUnreadCount(0);
-    notifySuccess(`${currentCount} notification(s) marked as read.`);
-    // Placeholder: await markAllNotificationsAsRead(); // Call real API later
+    if (
+      !loggedInUser?.id ||
+      !authToken ||
+      notifications.filter((n) => !n.is_read).length === 0
+    )
+      return; // Check token
+    console.log("Marking all as read...");
+    const originalNotifications = [...notifications];
+    try {
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+
+      await axios.post(
+        `${API_BASE_URL}/v1/notifications/mark-all-read`,
+        {}, // Empty body for POST if no data needed, or send { empNo: loggedInUser.id }
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`, // *** ADDED TOKEN HERE ***
+          },
+        }
+      );
+      // The backend response might have a message
+      // notifySuccess(response.data?.message || "All notifications marked as read.");
+      notifySuccess("All notifications marked as read.");
+      loadNotifications(); // Re-fetch to confirm from server (optional)
+    } catch (err) {
+      console.error("Failed to mark all notifications as read:", err);
+      setNotifications(originalNotifications); // Revert
+      setUnreadCount(originalNotifications.filter((n) => !n.is_read).length);
+      notifyError(
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Failed to update notification statuses."
+      );
+    }
   };
 
   // --- Click Outside Handler ---
@@ -207,10 +429,5 @@ function NotificationBell() {
 export default NotificationBell;
 
 
-// Add this line to the Navbar component after Navlink and it bracket lies
 
-//  <div className="ml-4 flex-shrink-0">
-//             {" "}
-//             {/* Added margin-left and prevent shrinking */}
-//             <NotificationBell />
-//           </div>
+

@@ -114,6 +114,7 @@
 // src/components/Navbar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom"; // Use NavLink for active styling
+import NotificationBell from "./notifications/NotificationBell"
 import {
   MdOutlineDashboard,
   MdOutlineAddCircleOutline,
@@ -149,9 +150,9 @@ const navMap = {
     { name: "Assign DRM/Projects", href: "/projects/assign", icon: MdOutlinePlaylistAdd },
     { name: "Assigned Projects", href: "/projects/assigned", icon: MdWorkHistory },
     { name: "Verify Domain Requests", href: "/domains/hod/verify-requests", icon: MdOutlineFactCheck },
-    { name: "Verify VAPT Renewal", href: "/view/vapt-renewals", icon: MdOutlineFactCheck },
-    { name: "Verify Transfer Requests", href: "/domains/view/verify-transfer-requests", icon: MdOutlineFactCheck },
-    { name: "Verify Renewal Requests", href: "/domains/hod/verify-renewal", icon: MdOutlineFactCheck },
+    // { name: "Verify VAPT Renewal", href: "/view/vapt-renewals", icon: MdOutlineFactCheck },
+    // { name: "Verify Transfer Requests", href: "/domains/view/verify-transfer-requests", icon: MdOutlineFactCheck },
+    // { name: "Verify Renewal Requests", href: "/domains/hod/verify-renewal", icon: MdOutlineFactCheck },
     { name: "Logout", href: "/logout", icon: MdOutlineAssessment }, // Icon: MdOutlineAssessment as per current code
   ],
   'ARM': [
@@ -220,23 +221,25 @@ function Navbar() {
 
   return (
     // Use white background, slightly increased shadow, sticky positioning
-    <nav id="main-nav" className="bg-white shadow sticky top-0 z-40"> {/* Changed shadow-sm to shadow */}
+    <nav id="main-nav" className="bg-white shadow sticky top-0 z-40">
+      {" "}
+      {/* Changed shadow-sm to shadow */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Centered flex container with responsive spacing & horizontal scroll */}
-        <div className="flex justify-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 overflow-x-auto py-1"> {/* Adjusted spacing, added py-1 */}
+        <div className="flex justify-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 overflow-x-auto py-1">
+          {" "}
+          {/* Adjusted spacing, added py-1 */}
           {navItems.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               // Combine styles based on isActive state
               className={({ isActive }) =>
-                `${baseStyle} ${
-                  isActive
-                    ? activeStyle
-                    : hoverStyle
-                } ${
+                `${baseStyle} ${isActive ? activeStyle : hoverStyle} ${
                   // Optional: Add distinct styling for Logout link if desired
-                  item.name === 'Logout' ? 'hover:text-red-600 hover:border-red-300 hover:bg-red-50' : ''
+                  item.name === "Logout"
+                    ? "hover:text-red-600 hover:border-red-300 hover:bg-red-50"
+                    : ""
                 }`
               }
             >
@@ -246,8 +249,11 @@ function Navbar() {
                   <item.icon
                     className={`${iconBaseStyle} ${
                       isActive ? iconActiveStyle : iconInactiveStyle
-                    } group-hover:text-gray-700 transition-colors duration-200 ease-in-out ${ // Added transition to icon
-                      item.name === 'Logout' && !isActive ? 'group-hover:text-red-500' : '' // Group hover for logout icon (if needed)
+                    } group-hover:text-gray-700 transition-colors duration-200 ease-in-out ${
+                      // Added transition to icon
+                      item.name === "Logout" && !isActive
+                        ? "group-hover:text-red-500"
+                        : "" // Group hover for logout icon (if needed)
                     }`}
                     aria-hidden="true"
                   />
@@ -256,6 +262,7 @@ function Navbar() {
               )}
             </NavLink>
           ))}
+        <NotificationBell />
         </div>
       </div>
     </nav>
