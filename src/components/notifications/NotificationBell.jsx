@@ -7,7 +7,7 @@ import { notifyError, notifySuccess } from "../../utils/toastUtils"; // Correcte
 import { useRecoilValue } from "recoil";
 import {API_BASE_URL} from "../../config/env.config"
 import axios from "axios";
-import { WebhookEventType } from "../../../types/eventEnum";
+import { WebhookEventType } from "../../types/eventEnum";
 function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -218,7 +218,7 @@ function NotificationBell() {
   // }, [isOpen, loadNotifications]);
   useEffect(() => {
     let isMounted = true;
-    if (loggedInUser?.id && authToken && isOpen) {
+    if (loggedInUser?.id && authToken) {
       loadNotifications().then(() => {
         if (!isMounted) return;
       });
@@ -226,7 +226,21 @@ function NotificationBell() {
     return () => {
       isMounted = false;
     };
-  }, [loggedInUser, authToken, isOpen, loadNotifications]);
+  }, [loggedInUser, authToken, loadNotifications]);
+  useEffect(() => {
+    let isMounted = true;
+    if (isOpen && loggedInUser?.id && authToken) {
+      // Only load if opened, user and token exist
+      loadNotifications(false).then(() => {
+        // Pass false for non-initial load
+        if (!isMounted) return;
+        // Potentially do something after load on open
+      });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, loggedInUser, authToken, loadNotifications]);
   // --- Update position on Resize/Scroll ---
   useEffect(() => {
     if (!isOpen) return;
@@ -239,15 +253,6 @@ function NotificationBell() {
     };
   }, [isOpen, calculatePosition]);
 
-  // --- Simulate Marking Single Notification As Read ---
-  // const handleMarkRead = async (id) => {
-  //   console.log("Simulating Mark as read:", id);
-  //   // Optimistically update UI state
-  //   setNotifications((prev) => prev.filter((n) => n.id !== id));
-  //   setUnreadCount((prev) => Math.max(0, prev - 1));
-  //   notifySuccess("Notification marked as read.");
-  //   // Placeholder: await markNotificationAsRead(id); // Call real API later
-  // };
 
   const handleMarkRead = async (notificationId) => {
     if (!loggedInUser?.id || !authToken) return; // Check token
@@ -270,7 +275,8 @@ function NotificationBell() {
           },
         }
       );
-      notifySuccess("Notification marked as read.");
+      loadNotifications();
+     console.log("Notification marked as read.");
     } catch (err) {
       console.error(
         `Failed to mark notification ${notificationId} as read:`,
@@ -313,7 +319,7 @@ function NotificationBell() {
       setUnreadCount(0);
 
       await axios.post(
-        `${API_BASE_URL}/v1/notifications/mark-all-read`,
+        `${API_BASE_URL}/api/v1/notifications/mark-all-read`,
         {}, // Empty body for POST if no data needed, or send { empNo: loggedInUser.id }
         {
           headers: {
@@ -323,7 +329,7 @@ function NotificationBell() {
       );
       // The backend response might have a message
       // notifySuccess(response.data?.message || "All notifications marked as read.");
-      notifySuccess("All notifications marked as read.");
+      // notifySuccess("All notifications marked as read.");
       loadNotifications(); // Re-fetch to confirm from server (optional)
     } catch (err) {
       console.error("Failed to mark all notifications as read:", err);

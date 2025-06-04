@@ -33,8 +33,7 @@ import VerifyVaptRenewalPage from "./pages/VerifyVaptRenewalPage";
 import VerifyTransferPage from "./pages/VerifyTransferPage";
 import DomainDetailViewPage from "./pages/DomainDetailViewPage";
 import PurchaseDetailsForm from "./pages/PurchaseDetailsForm";
-import { useResetRecoilState } from "recoil";
-import { authTokenState, isAuthenticatedState, userState } from "./recoil/atoms/authState";
+
 
 
 
@@ -49,28 +48,7 @@ const NotFoundPage = () => (
   </div>
 );
 
-const LogoutPage = () => {
 
-  const resetStateAuthToken = useResetRecoilState(authTokenState)
-  const resetStateAuth = useResetRecoilState(isAuthenticatedState)
-  const resetUserState = useResetRecoilState(userState)
-  const navigate = useNavigate()
-
-
-
-
-  localStorage.clear()
-
-  resetStateAuth()
-  resetStateAuthToken()
-  resetUserState()
-
-  notifySuccess('Successfully logged out')
-  setTimeout(() => {
-    navigate('/login')
-
-  }, 1000);
-}
 
 function App() {
   return (
@@ -452,7 +430,7 @@ function App() {
 
         {/* Catch-all 404 Route - Renders if no other route matches */}
 
-        <Route path="/logout" element={<LogoutPage />} />
+      
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
