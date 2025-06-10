@@ -1,4 +1,6 @@
 
+
+// src/pages/AddDomainPage.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -15,8 +17,12 @@ import ComplianceInfoSection from "../components/domain-form/ComplianceInfoSecti
 import MouInfoSection from "../components/domain-form/MouInfoSection";
 import ArmInfoSection from "../components/domain-form/ArmInfoSection";
 import TermsAndConditionsSection from "../components/domain-form/TermsAndConditionsSection";
+
+// Import the new modal component
+import ConfirmationModal from "../components/modals/ConfirmationModal";
+
 import { API_BASE_URL } from "../config/env.config";
-import { authTokenState, isAuthenticatedState } from "../recoil/atoms/authState";
+import { authTokenState } from "../recoil/atoms/authState";
 import fetchUser from "../utils/fetchUser";
 import { useRecoilValue } from "recoil";
 import { notifyError, notifySuccess } from "../utils/toastUtils";
@@ -26,274 +32,217 @@ function AddDomainPage() {
   const queryParams = new URLSearchParams(search);
   const projectId = queryParams.get("projectId");
   const user = fetchUser();
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const isAuthenticated = useRecoilValue(authTokenState);
 
-
-
-
-
-
-  // State to store project details fetched from the API.
-  const [projectDetails, setProjectDetails] = useState({
-  });
+  // === STATE MANAGEMENT ===
+  const [projectDetails, setProjectDetails] = useState({});
+  const [isCheckingIp, setIsCheckingIp] = useState(false);
+  const [ipError, setIpError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isIpValid, setIsIpValid] = useState(false);
 
   const [domainRequest, setDomainRequest] = useState({
-    drmInfo: {
-      fname: "",
-      lname: "",
-      groupId: null,
-      centreId: null,
-      designation: "",
-      email: "",
-      teleNumber: "",
-      mobileNumber: "",
-      empNo: user.id,
-    },
-    armInfo: {
-      fname: "",
-      lname: "",
-      groupId: null,
-      centreId: null,
-      designation: "",
-      email: "",
-      teleNumber: "",
-      mobileNumber: "",
-      empNo: null,
-    },
-    domainDetails: {
-      domainName: "",
-      description: "",
-      serviceType: "", // enum, e.g., "WEB"
-      periodInYears: null,
-      registrationType: "NEW"
-    },
-    approverInfo: {
-      hodEmpNo: null,
-      edEmpNo: null,
-      netopsEmpNo: null,
-      webmasterEmpNo: null,
-      hodHpcEmpNo: null
-    },
-    ipDetails: {
-      publicIpAddress: "",
-      ipIssuer: "",
-      serverHardeningStatus: false,
-      ipExpiryDate: "" // ISO string e.g. "2025-12-31T00:00:00"
-    },
-    vaptCompliance: {
-      compliant: false,
-      certifyingAuthority: "",
-      certificateExpiryDate: "", // ISO string
-      approvalProof: null, // file or base64 string, depending on usage
-      remarks: ""
-    },
-    complianceStatus: {
-      gigwCompliance: "", // enum e.g. "COMPLIANT"
-      mouStatus: "" // enum e.g. "NOT_COMPLIANT"
-    }
+    drmInfo: { empNo: user.id },
+    armInfo: {},
+    domainDetails: { registrationType: "NEW" },
+    approverInfo: {},
+    ipDetails: {},
+    vaptCompliance: {},
+    complianceStatus: {},
   });
 
+  // === DATA HANDLERS ===
   const updateDomainRequest = (section, updatedData) => {
+    if (section === "ipDetails" && 'publicIpAddress' in updatedData) {
+      setIpError(null);
+      setIsIpValid(false); // <--- CRUCIAL: Reset valid status on change
+    }
     setDomainRequest((prev) => ({
       ...prev,
-      [section]: updatedData
+      [section]: updatedData,
     }));
-  }
+  };
 
-
-
-
-  // useEffect to fetch project details if a projectId is provided.
   useEffect(() => {
     if (!projectId) return;
     const fetchProjectDetails = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/users/project/${projectId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            // Optionally add any authorization header if required:
-            'Authorization': `Bearer ${isAuthenticated}`
-          },
+        const { data } = await axios.get(`${API_BASE_URL}/api/users/project/${projectId}`, {
+          headers: { Authorization: `Bearer ${isAuthenticated}` },
         });
-        console.log("PROJECTY DETAILS", response.data)
-        // Assuming the response data has keys: hodName, projectName, projectRemarks
-        // const { 
-        //   hod:{hod_fname,hod_lname},
-        //   project_name:projectName, 
-        //   project_remarks:projectRemarks, 
-        //   arm_emp_no:armEmpNo
-        //  } = response.data;
-
-        //  const hodName = `${hod_fname} ${hod_lname}`
-
+        setProjectDetails(data);
         updateDomainRequest("armInfo", {
-          fname: response.data.arm.arm_fname,
-          lname: response.data.arm.arm_lname,
-          groupId: response.data.arm.grp_id,
-          centreId: response.data.arm.centre_id,
-          designation: response.data.arm.desig,
-          email: response.data.arm.email_id,
-          teleNumber: response.data.arm.tele_no,
-          mobileNumber: response.data.arm.mob_no,
-          empNo: response.data.arm.emp_no,
+          fname: data.arm.arm_fname,
+          lname: data.arm.arm_lname,
+          groupId: data.arm.grp_id,
+          centreId: data.arm.centre_id,
+          designation: data.arm.desig,
+          email: data.arm.email_id,
+          teleNumber: data.arm.tele_no,
+          mobileNumber: data.arm.mob_no,
+          empNo: data.arm.emp_no,
         });
-        // responsibleOfficials
-
-        updateDomainRequest("approverInfo", {
-          hodEmpNo: response.data.responsibleOfficials.hod_emp_no,
-          edEmpNo: response.data.responsibleOfficials.ed_emp_no,
-          netopsEmpNo: response.data.responsibleOfficials.netops_emp_no,
-          webmasterEmpNo: response.data.responsibleOfficials.webmaster_emp_no,
-          hodHpcEmpNo: response.data.responsibleOfficials.hod_hpc_iande_emp_no
-        });
-
-
-        // And the fetched `drm` object into your state
+        updateDomainRequest("approverInfo", data.responsibleOfficials);
         updateDomainRequest("drmInfo", {
-          fname: response.data.drm.drm_fname,
-          lname: response.data.drm.drm_lname,
-          groupId: response.data.drm.grp_id,
-          centreId: response.data.drm.centre_id,
-          designation: response.data.drm.desig,
-          email: response.data.drm.email_id,
-          teleNumber: response.data.drm.tele_no,
-          mobileNumber: response.data.drm.mob_no,
-          empNo: response.data.drm.emp_no,
+          fname: data.drm.drm_fname,
+          lname: data.drm.drm_lname,
+          groupId: data.drm.grp_id,
+          centreId: data.drm.centre_id,
+          designation: data.drm.desig,
+          email: data.drm.email_id,
+          teleNumber: data.drm.tele_no,
+          mobileNumber: data.drm.mob_no,
+          empNo: data.drm.emp_no,
         });
-
-
-
-        setProjectDetails(response.data);
       } catch (error) {
         console.error("Error fetching project details:", error);
+        notifyError("Failed to fetch project details.");
       }
     };
-
     fetchProjectDetails();
-  }, [projectId]);
+  }, [projectId, isAuthenticated]);
 
-
-
-
-  // Dummy handler for final form submit.
-  const handleFormSubmit = async (e) => {
+  // === VALIDATION & SUBMISSION LOGIC ===
+  const handleIpUniquenessCheck = async (ipAddress) => {
+    setIsIpValid(false);
+    if (!ipAddress) {
+      setIpError(null);
+      return;
+    }
+    const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+    if (!ipRegex.test(ipAddress)) {
+      setIpError("Please enter a valid IPv4 address format.");
+      return;
+    }
+    setIsCheckingIp(true);
+    setIpError(null);
+    try {
+      await axios.get(`${API_BASE_URL}/ip-management/validation/check-unique?ipAddr=${ipAddress}`, {
+        headers: { Authorization: `Bearer ${isAuthenticated}` },
+      });
+      setIsIpValid(true);
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setIpError(error.response.data.message || "This IP address is already in use.");
+      } else {
+        setIpError("Could not verify IP address. Please check connection.");
+      }
+    } finally {
+      setIsCheckingIp(false);
+    }
+  };
+  
+  const handleOpenConfirmation = (e) => {
     e.preventDefault();
-    // Handle form submission logic here.
+    if (isCheckingIp) {
+      notifyError("Please wait for IP validation to complete.");
+      return;
+    }
+    if (ipError) {
+      notifyError("Please resolve the IP address error before submitting.");
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
-    console.log("PAYLOAD FOR DOMAIN REGISTRATION", domainRequest)
+  const handleConfirmSubmit = async () => {
+    setIsSubmitting(true);
+    const payload = { ...domainRequest };
 
-    //CONVERTING LOCALDATE TO LOCALDATE TIME
-    if (domainRequest.vaptCompliance.compliant) {
-      const date = new Date(domainRequest.vaptCompliance.certificateExpiryDate); // or your selected date
-      const isoDateTime = date.toISOString().slice(0, 19); // "2025-04-29T00:00:00"
-
-      domainRequest.vaptCompliance.certificateExpiryDate = isoDateTime
+    if (payload.vaptCompliance.compliant && payload.vaptCompliance.certificateExpiryDate) {
+      const date = new Date(payload.vaptCompliance.certificateExpiryDate);
+      payload.vaptCompliance.certificateExpiryDate = date.toISOString().slice(0, 19);
     }
 
     try {
-
-      const response = await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`,domainRequest,{
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':`Bearer ${isAuthenticated}`
-        }
-      })
-
-      notifySuccess('Form submitted successfully')
-      setTimeout(() => {
-        navigate('/dashboard')
-
-      }, 2000);
-
-
+      await axios.post(`${API_BASE_URL}/domainRegistration/domainRegister`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${isAuthenticated}`,
+        },
+      });
+      notifySuccess("Form submitted successfully!");
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
-      console.log("EROROR", error)
-      notifyError('Error occured while submitting')
-      throw new Error(error)
-
+      console.error("Submission Error:", error);
+      notifyError(error.response?.data?.message || "An error occurred while submitting.");
+    } finally {
+      setIsSubmitting(false);
+      setIsModalOpen(false);
     }
-
-
   };
 
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto p-4">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center border-b pb-2">
           Domain Name Registration Form
         </h2>
-        <form onSubmit={handleFormSubmit}>
-          {/* Pass any project details to the ProjectInfoSection if needed */}
+        <form onSubmit={handleOpenConfirmation}>
           <FormSection title="Project Information" initiallyOpen={true}>
             <ProjectInfoSection projectDetails={projectDetails} />
           </FormSection>
-
           <FormSection title="DRM Information" initiallyOpen={true}>
-            <DrmInfoSection user={user}
+            <DrmInfoSection user={user} domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} projectDetails={projectDetails} />
+          </FormSection>
+          <FormSection title="Registration Information" initiallyOpen={true}>
+            <RegistrationInfoSection domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} />
+          </FormSection>
+          <FormSection title="IP Information" initiallyOpen={true}>
+            <IpInfoSection
               domainRequest={domainRequest}
               updateDomainRequest={updateDomainRequest}
-              projectDetails={projectDetails} />
-          </FormSection>
-
-          <FormSection title="Registration Information" initiallyOpen={true}>
-            <RegistrationInfoSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest} />
-          </FormSection>
-
-          <FormSection title="IP Information" initiallyOpen={true}>
-            <IpInfoSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest}
+              onIpBlur={handleIpUniquenessCheck}
+              isCheckingIp={isCheckingIp}
+              ipError={ipError}
+              isIpValid={isIpValid}
             />
           </FormSection>
-
           <FormSection title="VAPT Information" initiallyOpen={true}>
-            <VaptInfoSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest}
-            />
+            <VaptInfoSection domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} />
           </FormSection>
-
-          <FormSection
-            title="Compliance (GIGW/ICT Accessibility)"
-            initiallyOpen={true}
-          >
-            <ComplianceInfoSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest} />
+          <FormSection title="Compliance (GIGW/ICT Accessibility)" initiallyOpen={true}>
+            <ComplianceInfoSection domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} />
           </FormSection>
-
           <FormSection title="Memorandum of Understanding" initiallyOpen={true}>
-            <MouInfoSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest}
-            />
+            <MouInfoSection domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} />
           </FormSection>
-
           <FormSection title="ARM Information" initiallyOpen={true}>
-            <ArmInfoSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest} projectDetails={projectDetails} />
+            <ArmInfoSection domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} projectDetails={projectDetails} />
           </FormSection>
-
           <FormSection title="Terms and Conditions" initiallyOpen={true}>
-            <TermsAndConditionsSection domainRequest={domainRequest}
-              updateDomainRequest={updateDomainRequest} />
+            <TermsAndConditionsSection domainRequest={domainRequest} updateDomainRequest={updateDomainRequest} />
           </FormSection>
 
           <div className="mt-8 flex justify-end">
             <button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-300 ease-in-out"
+              disabled={isCheckingIp || !!ipError}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Submit Form to Hod
+              {isCheckingIp ? "Validating IP..." : "Submit Form to Hod"}
             </button>
           </div>
         </form>
       </div>
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        isSubmitting={isSubmitting}
+        title="Confirm Form Submission"
+        message="Are you sure you want to submit this form? Please ensure all details are correct."
+        confirmText="Yes, Submit"
+        cancelText="No, Go Back"
+      />
     </MainLayout>
   );
 }
 
 export default AddDomainPage;
-
 
 
 

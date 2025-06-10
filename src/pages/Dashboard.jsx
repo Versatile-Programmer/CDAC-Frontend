@@ -1,4 +1,4 @@
-import React, {useState,useEffect,useMemo} from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRecoilValue } from 'recoil'; // Keep for userState, authTokenState if needed elsewhere
 import ExpiringDomainCard from "../components/ExpiringDomainCard";
 import ActivityCard from "../components/ActivityCard";
@@ -129,7 +129,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
     case "WEBMASTER":
       switch (activityTitle) {
         case "Enter Domain Purchase Details":
-          
+
           return [
             "DOMAIN_NETOPS_VERIFIED", // If NETOPS is before Webmaster purchase
             "DOMAIN_HPC_HOD_RECOMMENDED", // If HPC HOD is the final step before purchase for some domains
@@ -161,26 +161,26 @@ const getActivityEventTypes = (activityTitle, userRole) => {
       return [];
   }
 };
- const presentableRoleName = (role) => {
-   switch (role) {
-     case "DRM":
+const presentableRoleName = (role) => {
+  switch (role) {
+    case "DRM":
       return "DRM";
-     case "ARM":
+    case "ARM":
       return "ARM";
-     case "HOD":
-       return "HOD";
-     case "ED":
-       return "ED";
-     case "NETOPS":
-       return "NetOps";
-     case "WEBMASTER":
-       return "WebMaster";
-     case "HODHPC":  
-       return "HodHpcI&E";
-     default:
-       break;
-   }
- };
+    case "HOD":
+      return "HOD";
+    case "ED":
+      return "ED";
+    case "NETOPS":
+      return "NetOps";
+    case "WEBMASTER":
+      return "WebMaster";
+    case "HODHPC":
+      return "HodHpcI&E";
+    default:
+      break;
+  }
+};
 
 function DashboardPage() {
   const currentUser = useRecoilValue(userState);
@@ -416,10 +416,7 @@ function DashboardPage() {
       },
     ],
   };
-  console.log(
-    "Frontend PROJECT_ASSIGNED:",
-    PROJECT_ASSIGNED
-  );
+
   const activitiesToRender = useMemo(() => {
     return activitiesMap[role] || activitiesMap.DRM; // Fallback
   }, [role]);
