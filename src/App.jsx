@@ -365,7 +365,7 @@ function App() {
             <GenericDomainVerificationPage apiPath={'/domain/domain-purchase-view/WEBMASTER'}
               verifyPathPrefix={'/detailed-domain/purchase/webmaster'}
               title="WEBMASTER-Domain Purchase Details"
-              useFor={"domain"} />
+              useFor={"purchase"} />
           </ProtectedRoute>
         } />
 

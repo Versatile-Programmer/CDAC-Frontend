@@ -24,6 +24,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { notifySuccess, ToastContainer } from "../utils/toastUtils";
 import { set } from "lodash";
+import { useEffect } from "react";
 
 // Simulate getting user role from context/auth (replace with real logic)
 // let userDetails = fetchUser(); // Fetch user details once
@@ -133,6 +134,18 @@ function Navbar() {
     notifySuccess("You have been logged out.");
     navigate("/login", { replace: true }); // Redirect to login page
   };
+
+  // useEffect(() => {
+  //       const handleBeforeUnload = (event) => {
+  //           handleLogout(); // Call the logout function
+  //       };
+
+  //       window.addEventListener('beforeunload', handleBeforeUnload);
+
+  //       return () => {
+  //           window.removeEventListener('beforeunload', handleBeforeUnload);
+  //       };
+  //   }, []);
 
   return (
     // Use white background, slightly increased shadow, sticky positioning

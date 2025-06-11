@@ -131,12 +131,12 @@ const getActivityEventTypes = (activityTitle, userRole) => {
         case "Enter Domain Purchase Details":
 
           return [
-            "DOMAIN_NETOPS_VERIFIED", // If NETOPS is before Webmaster purchase
+             // If NETOPS is before Webmaster purchase
             "DOMAIN_HPC_HOD_RECOMMENDED", // If HPC HOD is the final step before purchase for some domains
           ]; // Webmaster might get EITHER of these depending on domain type.
         case "Verify Domain Requests": // If Webmaster also has a verification step
           // This would be an event like DOMAIN_SOME_PREVIOUS_ROLE_VERIFIED
-          return []; // Needs specific event if Webmaster verifies
+          return ["DOMAIN_NETOPS_VERIFIED"]; // Needs specific event if Webmaster verifies
         case "Verify Domain Renewal Requests": // If Webmaster also has a verification step for renewals
           return []; // Needs specific event
         case "View Domains":
@@ -148,7 +148,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
     case "HODHPC":
       switch (activityTitle) {
         case "Verify Domain Requests":
-          return ["DOMAIN_ED_APPROVED"]; // Or DOMAIN_NETOPS_VERIFIED if that's the trigger
+          return ["DOMAIN_WEBMASTER_VERIFIED"]; // Or DOMAIN_NETOPS_VERIFIED if that's the trigger
         case "Verify Domain Renewal Requests":
           return ["DOMAIN_RENEWAL_APPROVED"]; // Similar logic to new requests
         case "View Domains":
