@@ -270,12 +270,12 @@ function DashboardPage() {
         IconComponent: MdOutlineVisibility,
         linkTo: "/domains/view",
       },
-      {
-        id: "drm_reports",
-        title: "Reports",
-        IconComponent: MdOutlineAssessment,
-        linkTo: "/reports",
-      },
+      // {
+      //   id: "drm_reports",
+      //   title: "Reports",
+      //   IconComponent: MdOutlineAssessment,
+      //   linkTo: "/reports",
+      // },
     ],
     HOD: [
       {
