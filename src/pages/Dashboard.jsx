@@ -699,7 +699,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
           // If ARM forwards renewals to HOD:
           // return [DOMAIN_RENEWAL_ARM_FORWARDED]; // << YOU WOULD NEED THIS EVENT TYPE
           // If HOD is the primary verifier for renewals submitted by DRM:
-          return ["DOMAIN_RENEWAL_REQUESTED"]; // Assuming these go to HOD queue
+          return ["DOMAIN_RENEWAL_ARM_FORWARDED"]; // Assuming these go to HOD queue
         default:
           return [];
       }
@@ -727,7 +727,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
           // ED acts on renewals after HOD (or another role) has verified.
           // This assumes a flow: DRM -> ARM -> HOD -> ED for renewals.
           // If renewals are approved by HOD and then go to ED:
-          return ["DOMAIN_RENEWAL_APPROVED"]; // Assuming HOD's verification results in "RENEWAL_APPROVED_BY_HOD" which notifies ED.
+          return ["DOMAIN_RENEWAL_HOD_VERIFIED"]; // Assuming HOD's verification results in "RENEWAL_APPROVED_BY_HOD" which notifies ED.
         // Or if HOD verifies and it's a specific "forward to ED" event
         case "View Domains":
           return [];
@@ -744,7 +744,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
           // NETOPS acts on renewals after ED's approval.
           // This assumes a flow for renewals: ... -> ED -> NETOPS
           // If ED approves renewal and it goes to NETOPS:
-          return ["DOMAIN_RENEWAL_APPROVED"]; // Assuming this event means "approved by previous stage, now NETOPS action"
+          return ["DOMAIN_RENEWAL_ED_APPROVED"]; // Assuming this event means "approved by previous stage, now NETOPS action"
         // and the notification is for NETOPS
         case "View Domains":
           return [];
@@ -764,7 +764,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
           // This would be an event like DOMAIN_SOME_PREVIOUS_ROLE_VERIFIED
           return ["DOMAIN_NETOPS_VERIFIED"]; // Needs specific event if Webmaster verifies
         case "Verify Domain Renewal Requests": // If Webmaster also has a verification step for renewals
-          return []; // Needs specific event
+          return ["DOMAIN_RENEWAL_NETOPS_VERIFIED"]; // Needs specific event
         case "View Domains":
           return [];
         default:
@@ -776,7 +776,7 @@ const getActivityEventTypes = (activityTitle, userRole) => {
         case "Verify Domain Requests":
           return ["DOMAIN_WEBMASTER_VERIFIED"]; // Or DOMAIN_NETOPS_VERIFIED if that's the trigger
         case "Verify Domain Renewal Requests":
-          return ["DOMAIN_RENEWAL_APPROVED"]; // Similar logic to new requests
+          return ["DOMAIN_RENEWAL_WEBMASTER_VERIFIED"]; // Similar logic to new requests
         case "View Domains":
           return [];
         default:

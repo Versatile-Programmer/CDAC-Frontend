@@ -221,7 +221,7 @@ function ExpiringDomainsPage() {
           today.setHours(0, 0, 0, 0);
 
           const timeDiff = expiryDate.getTime() - today.getTime();
-          const expiringIn = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+          const expiringIn = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
 
           return {
             serialNo: index + 1,
