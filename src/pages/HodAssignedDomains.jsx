@@ -1,103 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { useRecoilValue } from "recoil";
-// import MainLayout from "../layouts/MainLayout";
-// import Table from "../components/Table";
-// import axios from "axios";
-// import fetchUser from "../utils/fetchUser";
-// import { API_BASE_URL } from "../config/env.config";
-// import { authTokenState } from "../recoil/atoms/authState";
-// import { getThemeForDays } from "../utils/themes";
-
-// function HodAssignedProjectsPage() {
-//   const isAuthenticated = useRecoilValue(authTokenState);
-//   const user = fetchUser();
-//   const navigate = useNavigate();
-
-//   const [projects, setProjects] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-
-//   const empId = user?.id;
-
-//   useEffect(() => {
-//     const fetchAssignedProjects = async () => {
-//       setLoading(true);
-//       setError(null);
-//       try {
-//         const response = await axios.get(
-//           `${API_BASE_URL}/api/users/list/projects/${empId}`,
-//           {
-//             headers: {
-//               "Content-Type": "application/json",
-//               Authorization: `Bearer ${isAuthenticated}`,
-//             },
-//           }
-//         );
-//         console.log("HOD PROJECTS DATA:", response.data);
-//         setProjects(response.data);
-//       } catch (err) {
-//         console.error("Failed to fetch HOD assigned projects", err);
-//         setError("Error fetching assigned projects. Please try again later.");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     if (empId) {
-//       fetchAssignedProjects();
-//     }
-//   }, [empId, isAuthenticated]);
-
-//   const columns = [
-//     { header: "Serial No.", accessor: "serialNo" },
-//     { header: "Project Name", accessor: "project_name" },
-//     // { header: "Domain Name", accessor: "domain_name" },
-//     { header: "DRM Name", accessor: "drm_name" },
-//     { header: "DRM Email", accessor: "drm_email" },
-//     { header: "ARM Name", accessor: "arm_name" },
-//     { header: "ARM Email", accessor: "arm_email" },
-//   ];
-
-//   const dataWithSerial = projects.map((item, index) => ({
-//     serialNo: index + 1,
-//     project_name: item.project_name,
-//     drm_name: `${item.drm?.drm_fname || ""} ${item.drm?.drm_lname || ""}`,
-//     drm_email: item.drm?.email_id || "N/A",
-//     arm_name: `${item.arm?.arm_fname || ""} ${item.arm?.arm_lname || ""}`,
-//     arm_email: item.arm?.email_id || "N/A",
-//   }));
-
-//   const theme = getThemeForDays("default");
-
-//   return (
-//     <MainLayout>
-//       <div className="space-y-6 p-4">
-//         <h2 className="text-2xl font-semibold text-gray-800">Assigned Projects</h2>
-//         {loading && <p className="text-gray-500">Loading assigned projects...</p>}
-//         {error && <p className="text-red-500">{error}</p>}
-//         {!loading && !error && projects.length === 0 && (
-//           <p className="text-gray-500">No assigned projects found.</p>
-//         )}
-//         {!loading && !error && projects.length > 0 && (
-//           <Table
-//             columns={columns}
-//             data={dataWithSerial}
-//             theme={theme}
-//             emptyMessage="No assigned projects found."
-//           />
-//         )}
-//       </div>
-//     </MainLayout>
-//   );
-// }
-
-// export default HodAssignedProjectsPage;
-
-
-
-// HodAssignedProjectsPage.jsx
-
 import React, { useEffect, useState, useCallback } from "react";
 import { useRecoilValue } from "recoil";
 import MainLayout from "../layouts/MainLayout";
@@ -107,20 +7,31 @@ import fetchUser from "../utils/fetchUser";
 import { API_BASE_URL } from "../config/env.config";
 import { authTokenState } from "../recoil/atoms/authState";
 import { getThemeForDays } from "../utils/themes";
-import { FiLoader } from "react-icons/fi"; // Import loader icon
+import { FiLoader } from "react-icons/fi";
+// 1. Import PaginationControls
+import PaginationControls from "../components/PaginationControls";
 
 function HodAssignedProjectsPage() {
   const isAuthenticated = useRecoilValue(authTokenState);
   const user = fetchUser();
 
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true); // Set initial loading to true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // 2. Add state for pagination, using a single state object for clarity
+  const [pagination, setPagination] = useState({
+    currentPage: 0, // Start at page 0 (for 0-indexed component logic)
+    pageSize: 2,    // A default page size
+    totalPages: 0,
+    totalItems: 0,
+  });
 
   const empId = user?.id;
   const currentTheme = getThemeForDays("default");
 
-  const fetchAssignedProjects = useCallback(async () => {
+  // 3. Modify the fetch function to handle pagination
+  const fetchAssignedProjects = useCallback(async (page, size) => {
     if (!empId) {
         setError("User information is missing.");
         setLoading(false);
@@ -129,6 +40,7 @@ function HodAssignedProjectsPage() {
     setLoading(true);
     setError(null);
     try {
+      // The API likely expects a 1-based page number, so we send `page + 1`
       const response = await axios.get(
         `${API_BASE_URL}/api/users/list/projects/${empId}`,
         {
@@ -136,9 +48,27 @@ function HodAssignedProjectsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${isAuthenticated}`,
           },
+          // Send page and pageSize as query parameters
+          params: {
+            page: page + 1, // API expects 1-based, our state is 0-based
+            pageSize: size,
+          },
         }
       );
-      setProjects(response.data);
+      
+      // 4. Correctly parse the paginated response
+      const { data, pagination: paginationData } = response.data;
+
+      setProjects(data); // The list of projects is in the 'data' array
+      
+      // Update our pagination state from the API response
+      setPagination({
+        currentPage: paginationData.currentPage - 1, // Convert 1-based API response to 0-based for state
+        pageSize: paginationData.pageSize,
+        totalPages: paginationData.totalPages,
+        totalItems: paginationData.totalItems,
+      });
+
     } catch (err) {
       console.error("Failed to fetch HOD assigned projects", err);
       setError("Error fetching assigned projects. Please try again later.");
@@ -148,9 +78,19 @@ function HodAssignedProjectsPage() {
     }
   }, [empId, isAuthenticated]);
 
+  // Initial fetch on component mount
   useEffect(() => {
-    fetchAssignedProjects();
-  }, [fetchAssignedProjects]);
+    if(empId) {
+        // Fetch the first page (page 0) with the default page size
+        fetchAssignedProjects(pagination.currentPage, pagination.pageSize);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [empId]); // We only want this to run once when empId is available
+
+  // 5. Create a handler for page changes from PaginationControls
+  const handlePageChange = (newPage) => {
+    fetchAssignedProjects(newPage, pagination.pageSize);
+  };
 
   const columns = [
     { header: "Serial No.", accessor: "serialNo" },
@@ -161,8 +101,9 @@ function HodAssignedProjectsPage() {
     { header: "ARM Email", accessor: "arm_email" },
   ];
 
+  // 7. Fix Serial No. calculation to be aware of the current page
   const dataWithSerial = projects.map((item, index) => ({
-    serialNo: index + 1,
+    serialNo: pagination.currentPage * pagination.pageSize + index + 1,
     project_name: <span className="font-medium text-gray-800">{item.project_name}</span>,
     drm_name: (
       <div className="text-sm text-gray-600 whitespace-normal break-words">
@@ -215,6 +156,17 @@ function HodAssignedProjectsPage() {
               theme={currentTheme}
               emptyMessage="No assigned projects found."
             />
+            {/* 6. Render the PaginationControls component */}
+            {pagination.totalItems > 0 && (
+                <PaginationControls
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                    totalElements={pagination.totalItems}
+                    itemsPerPage={pagination.pageSize}
+                    itemsOnPage={projects.length}
+                />
+            )}
           </div>
         )}
       </div>

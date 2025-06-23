@@ -25,7 +25,6 @@
 
 // export default FileUpload;
 // src/components/forms/FileUpload.jsx
-import React from "react";
 import { BsCloudDownload } from "react-icons/bs";             // 1) import whatever icon you want
 
 const FileUpload = ({ label, id, name, onUpload, isRequired = false }) => {

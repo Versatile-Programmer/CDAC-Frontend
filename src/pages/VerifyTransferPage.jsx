@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import TextInput from "../components/forms/TextInput";
 import FileUpload from "../components/forms/FileUpload";
 import { useRecoilValue } from "recoil";
 import { authTokenState } from "../recoil/atoms/authState";
