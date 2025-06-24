@@ -1073,15 +1073,15 @@ function DashboardPage() {
     );
   }
 
-  if (isLoadingNotifications && allUnreadNotifications.length === 0) {
-    return (
-      <MainLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-gray-600">Loading notifications...</p>
-        </div>
-      </MainLayout>
-    );
-  }
+  // if (isLoadingNotifications && allUnreadNotifications.length === 0) {
+  //   return (
+  //     <MainLayout>
+  //       <div className="flex justify-center items-center h-screen">
+  //         <p className="text-xl text-gray-600">Loading notifications...</p>
+  //       </div>
+  //     </MainLayout>
+  //   );
+  // }
 
   // *** FIX: The render-blocking error block below has been removed. ***
   // if (notificationsError && allUnreadNotifications.length === 0) { ... }

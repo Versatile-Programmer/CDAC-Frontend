@@ -486,6 +486,7 @@ function TransferRequestSection() {
                   placeholder="e.g., 220004"
                   value={formData.trns_to}
                   isRequired={true}
+                  type="number"
                   onChange={(e) => handleChange("trns_to", e.target.value)}
                   error={drmToError}
                 />
