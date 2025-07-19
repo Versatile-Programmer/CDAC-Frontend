@@ -1544,7 +1544,7 @@ const roleBasedVerificationButtonText = (role) => {
     case "DRM":
       return "Verify and Forward to ARM";
     case "ARM":
-      return "Verify "; // Adjusted based on typical flow
+      return "Consent"; // Adjusted based on typical flow
     // Add other non-approval role cases if needed
     default:
       return "Verify Details"; // Fallback detailed text
